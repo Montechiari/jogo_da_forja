@@ -6,26 +6,29 @@ SAUDE_PRONTIDAO_MIN = 8
 DANO_ARMA_MAX = 10
 DANO_ARMA_MIN = 3
 
-# Caractere da esquerda eh acao de combatente com iniciativa; direita, do outro
-COMBINACOES_DE_ACOES = [["19", "19", "13", "16", "14", "16"],
-                        ["29", "29", "23", "26", "24", "26"],
-                        ["31", "32", "44", "36", "48", "54"],
-                        ["61", "62", "63", "66", "74", "48"],
-                        ["41", "42", "84", "47", "44", "44"],
-                        ["41", "42", "45", "84", "44", "44"]]
+# Caractere da esquerda eh acao do combatente com iniciativa; direita, do outro
+COMBINACOES_DE_ACOES = [["09", "09", "02", "03", "04", "03"],
+                        ["19", "19", "12", "13", "14", "13"],
+                        ["20", "21", "44", "23", "48", "64"],
+                        ["30", "31", "32", "33", "74", "48"],
+                        ["40", "41", "84", "47", "44", "44"],
+                        ["40", "41", "46", "84", "44", "44"]]
 
 # [tipo de vantagem, quanto inflige dano, tipo de dano, prontidao]
-ACOES_CODIFICADAS = {"1": ['ofensiva', 0, '', 0],
-                     "2": ['defensiva', 0, '', 0],
-                     "3": ['', 1, 'c', -1],
+ACOES_CODIFICADAS = {"0": ['ofensiva', 0, '', 0],
+                     "1": ['defensiva', 0, '', 0],
+                     "2": ['', 1, 'c', -1],
+                     "3": ['', 1, 'e', -1],
                      "4": ['', 0, '', -1],
-                     "5": ['', 0.5, 'c', -1],
-                     "6": ['', 1, 'e', -1],
+                     "5": ['', 0, '', -1],
+                     "6": ['', 0.5, 'c', -1],
                      "7": ['', 0.5, 'e', -1],
                      "8": ['', 0, '', 1],
                      "9": ['', 0, '', 0]}
 
-INDICE_DE_ACAO_EXTRA = ['1', '2', '3', '6', '4', '4']
+NOME_DE_ACAO = ['movimento ofensivo', 'movimento defensivo',
+                'ataque corte', 'ataque estocada',
+                'defesa corte', 'defesa estocada']
 
 
 class Combatente():
@@ -55,7 +58,10 @@ class Combatente():
         self.saude += montante
 
     def altera_prontidao(self, montante):
-        self.prontidao += montante
+        if (self.prontidao + montante) > 0:
+            self.prontidao += montante
+        else:
+            self.prontidao = 1
 
     def inflige_dano(self, tipo):
         dano = self.arma[tipo]
@@ -97,34 +103,38 @@ class Partida():
 
         self.vantagem = {'quem': None, 'tipo': None}
         self.combatentes = self.cria_combatentes()
-        self.status = None
+
         self.turno_numero = 1
-        while self.todos_vivos():
+        while self.todos_vivos() and self.turno_numero < 20:
             self.novo_turno()
         print('fim da partida!')
 
     def cria_combatentes(self):
         combatentes = [JogadorAleatorio(), JogadorAleatorio()]
+
         ordem_invertida = copy(combatentes)
         ordem_invertida.reverse()
-        for i in range(2):
-            combatentes[i].oponente = ordem_invertida[i]
+
+        for i, combatente in enumerate(combatentes):
+            combatente.oponente = ordem_invertida[i]
         return combatentes
 
     def novo_turno(self):
         print("turno", self.turno_numero)
         print(self.combatentes[0].saude, self.combatentes[1].saude)
+
         acao_extra = self.determina_iniciativa()
-        for individuo in self.combatentes:
-            individuo.decide_acao()
+        for combatente in self.combatentes:
+            combatente.decide_acao()
 
         self.traduz_acoes()
 
         for combatente in self.combatentes:
             self.aplica_efeitos_de_acao(combatente)
 
-        while acao_extra > 0 or self.turno_numero > 20:
+        while acao_extra > 0:
             self.combatentes[0].decide_acao()
+            self.traduz_acao_extra()
             self.aplica_efeitos_de_acao(self.combatentes[0])
             acao_extra -= 1
 
@@ -138,8 +148,7 @@ class Partida():
             combatente.acao = ACOES_CODIFICADAS[indice_de_acao[i]]
 
     def traduz_acao_extra(self):
-        indice = INDICE_DE_ACAO_EXTRA[self.combatentes[0].acao - 1]
-        acao_traduzida = ACOES_CODIFICADAS[indice]
+        acao_traduzida = ACOES_CODIFICADAS[str(self.combatentes[0].acao - 1)]
         self.combatentes[0].acao = acao_traduzida
 
     def aplica_efeitos_de_acao(self, combatente):
@@ -156,19 +165,20 @@ class Partida():
 
     def resolve_dano(self, combatente):
         dano = 0
-        if combatente.acao[2] is 'c':
+        if combatente.acao[2] == 'c':
             dano = combatente.arma['corte']
-        elif combatente.acao[2] is 'e':
+        elif combatente.acao[2] == 'e':
             dano = combatente.arma['estocada']
-        if (combatente.tem_vantagem and self.vantagem['tipo'] is 'ofensiva'):
+        if (combatente.tem_vantagem and self.vantagem['tipo'] == 'ofensiva'):
             dano *= 2
-        elif (combatente.oponente.tem_vantagem and self.vantagem['tipo'] is 'defensiva'):
+        elif (combatente.oponente.tem_vantagem and self.vantagem['tipo'] ==
+              'defensiva'):
             dano *= 0.5
         combatente.oponente.altera_saude(-dano)
 
     def resolve_prontidao(self, combatente):
         prontidao_nova = combatente.acao[3]
-        if combatente.tem_vantagem and self.vantagem['tipo'] is 'defensiva':
+        if combatente.tem_vantagem and self.vantagem['tipo'] == 'defensiva':
             prontidao_nova += 1
         combatente.altera_prontidao(prontidao_nova)
 
