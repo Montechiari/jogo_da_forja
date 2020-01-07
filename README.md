@@ -21,11 +21,16 @@ A segunda etapa é introduzir traços de RPG ao jogo, com evolução de personag
 
 A terceira etapa é criar uma oficina de armas, e fazer da construção de armas um carro-chefe. Existe a possibilidade de implementar uma economia, com trocas entre jogadores.
 
-# Dúvida sobre boas práticas (02/01/20)
+## Dúvida sobre boas práticas (02/01/20)
 O código está estruturado de maneira que o objeto Combatente possui um método para decidir que ação tomar. Isso é senso-comum: pessoas tomam decisões; entidades abstratas, não. Entretanto, isso faz com que o objeto Partida tenha que conhecer o método do Combatente, e chamá-lo. Além disso, o código de Partida para chamar o método de Jogador está em um nível de abstração menor do que o resto da função onde ocorre. Minha dúvida é se, ao mudar, estaria sobrecarregando as responsabilidades de Partida, e transformando Jogador em pouco mais que um dicionário.
 Um ponto relevante é o atributo "oponente" de Combatente. Ele é inicializado através de Partida, na criação de Combatentes.
-# Resposta (mesmo dia)
+## Resposta (mesmo dia)
 Relegar a decisão ao Combatente permite que tenhamos subclasses com diferentes métodos de decisão. Quanto ao princípio de uma classe não ter informações de outra classe, ele já foi quebrado. A classe Partida é superior hierarquicamente à Combatente, instâncias de Combatente são criadas apenas no âmbito de Partida. Combatente precisa apenas saber o número do turno atual – para integrar o relatório – e ter uma referência ao seu oponente. Essa referência é dada por Partida no momento da criação de instâncias de Combatente.
 
-## Apontamentos sobre a versão RPG
-As..
+# Apontamentos sobre a versão RPG
+
+### Desenvolvimento de personagem
+
+Um ponto importante do jogo básico é o combate em que a sorte se manifesta apenas na coincidência de ações entre oponentes, não está ligada a probabilidades de acerto dadas pelo nível deles. O nível dos combatentes deveria afetar o conhecimento sobre si e sobre o adversário.
+Os combatentes têm três níveis de atributos: os permanentes, os de longo prazo, e os de curto prazo. Esses atributos têm ainda duas classes: físicos e psicológicos.
+Seria uma boa idéia fazer os atributos terem sinergia com as características da arma que o combatente usa. Dessa forma, a construção da arma assume um papel importante no jogo.
