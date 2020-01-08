@@ -26,9 +26,9 @@ ACOES_CODIFICADAS = {"0": ['ofensiva', 0, '', 0],
                      "8": ['', 0, '', 1],
                      "9": ['', 0, '', 0]}
 
-NOME_DE_ACAO = ['movimento ofensivo', 'movimento defensivo',
-                'ataque corte', 'ataque estocada',
-                'defesa corte', 'defesa estocada']
+NOME_DE_ACAO = ['movimento ofensivo.', 'movimento defensivo.',
+                'ataque corte.', 'ataque estocada.',
+                'defesa corte.', 'defesa estocada.']
 
 
 class Combatente():
@@ -67,11 +67,31 @@ class Combatente():
         dano = self.arma[tipo]
         self.oponente.altera_saude(dano * -1)
 
-    def registro_da_partida(self):
-        pass
+    def mensagem_acao(self):
+        return "{nome} realiza {acao}".format(nome=self.nome,
+                                              acao=NOME_DE_ACAO[self.acao - 1])
 
-    def registra_turno(self):
-        pass
+    def mensagem_iniciativa(self):
+        return "{nome} tem a iniciativa.".format(nome=self.nome)
+
+    def mensagem_atributos(self):
+        return "{nome} tem {saude} pontos de vida \
+e {prontidao} pontos de prontidao.".format(nome=self.nome,
+                                           saude=self.saude,
+                                           prontidao=self.prontidao)
+
+    def mensagem_arma(self):
+        return "A espada de {} causa {} de dano de estocada e {} \
+de dano de corte.".format(self.nome, self.arma["estocada"], self.arma["corte"])
+
+    def mensagem_vantagem(self, tipo):
+        return "{nome} assume vantagem {vantagem}.".format(nome=self.nome,
+                                                           vantagem=tipo)
+
+    def mensagem_dano(self, dano):
+        return "{nome} recebe {dano} pontos de dano!".format(
+            nome=self.oponente.nome,
+            dano=dano)
 
 
 class JogadorHumano(Combatente):
@@ -91,8 +111,8 @@ class JogadorRedeNeural(Combatente):
 
 
 class JogadorAleatorio(Combatente):
-    def __init__(self):
-        Combatente.__init__(self, 'Hicham')
+    def __init__(self, nome):
+        Combatente.__init__(self, nome)
 
     def decide_acao(self):
         self.acao = np.random.randint(1, 7)
@@ -104,40 +124,42 @@ class Partida():
         self.vantagem = {'quem': None, 'tipo': None}
         self.combatentes = self.cria_combatentes()
 
+        self.reporta_estatisticas()
         self.turno_numero = 1
         while self.todos_vivos() and self.turno_numero < 20:
             self.novo_turno()
         print('fim da partida!')
 
     def cria_combatentes(self):
-        combatentes = [JogadorAleatorio(), JogadorAleatorio()]
+        combatentes = [JogadorAleatorio("Carlos"), JogadorAleatorio("Hicham")]
 
         ordem_invertida = copy(combatentes)
         ordem_invertida.reverse()
 
         for i, combatente in enumerate(combatentes):
             combatente.oponente = ordem_invertida[i]
+            print(combatente.mensagem_arma())
         return combatentes
 
     def novo_turno(self):
-        print("turno", self.turno_numero)
-        print(self.combatentes[0].saude, self.combatentes[1].saude)
-
         acao_extra = self.determina_iniciativa()
+        print("\nTurno {}:".format(self.turno_numero),
+              self.combatentes[0].mensagem_iniciativa())
         for combatente in self.combatentes:
             combatente.decide_acao()
-
+            print(combatente.mensagem_acao())
         self.traduz_acoes()
-
         for combatente in self.combatentes:
             self.aplica_efeitos_de_acao(combatente)
 
         while acao_extra > 0:
             self.combatentes[0].decide_acao()
+            print(self.combatentes[0].mensagem_acao())
             self.traduz_acao_extra()
             self.aplica_efeitos_de_acao(self.combatentes[0])
             acao_extra -= 1
 
+        self.reporta_estatisticas()
         self.turno_numero += 1
         return 'fim de turno'
 
@@ -160,6 +182,7 @@ class Partida():
     def resolve_vantagem(self, combatente):
         self.vantagem['quem'] = combatente
         self.vantagem['tipo'] = combatente.acao[0]
+        print(combatente.mensagem_vantagem(self.vantagem['tipo']))
         combatente.oponente.tem_vantagem = False
         combatente.tem_vantagem = True
 
@@ -174,6 +197,7 @@ class Partida():
         elif (combatente.oponente.tem_vantagem and self.vantagem['tipo'] ==
               'defensiva'):
             dano *= 0.5
+        print(combatente.mensagem_dano(dano))
         combatente.oponente.altera_saude(-dano)
 
     def resolve_prontidao(self, combatente):
@@ -189,13 +213,15 @@ class Partida():
         return False if 'morto' in contagem_de_mortos else True
 
     def determina_iniciativa(self):
-        self.combatentes.sort(key=lambda jogador: jogador.prontidao)
+        self.combatentes.sort(key=lambda jogador: jogador.prontidao,
+                              reverse=True)
         assert self.combatentes[0].prontidao != 0, 'Prontidao igual a zero!'
         return np.floor(abs(np.log2(self.combatentes[0].prontidao /
                                     self.combatentes[1].prontidao)))
 
-    def registra_partida(self):
-        pass
+    def reporta_estatisticas(self):
+        for combatente in sorted(self.combatentes, key=lambda x: x.nome):
+            print(combatente.mensagem_atributos())
 
 
 if __name__ == '__main__':
