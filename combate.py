@@ -67,6 +67,12 @@ class Combatente():
         dano = self.arma[tipo]
         self.oponente.altera_saude(dano * -1)
 
+    def resumo_de_atributos(self):
+        return "{nome}, {saude}s, {prontidao}p, ({estocada}e/{corte}c)".format(
+                nome=self.nome, saude=self.saude, prontidao=self.prontidao,
+                estocada=self.arma["estocada"], corte=self.arma["corte"]
+                                                                              )
+
     def mensagem_acao(self):
         return "{nome} realiza {acao}".format(nome=self.nome,
                                               acao=NOME_DE_ACAO[self.acao - 1])
@@ -123,8 +129,6 @@ class Partida():
 
         self.vantagem = {'quem': None, 'tipo': None}
         self.combatentes = self.cria_combatentes()
-
-        self.reporta_estatisticas()
         self.turno_numero = 1
         while self.todos_vivos() and self.turno_numero < 20:
             self.novo_turno()
@@ -138,13 +142,11 @@ class Partida():
 
         for i, combatente in enumerate(combatentes):
             combatente.oponente = ordem_invertida[i]
-            print(combatente.mensagem_arma())
         return combatentes
 
     def novo_turno(self):
         acao_extra = self.determina_iniciativa()
-        print("\nTurno {}:".format(self.turno_numero),
-              self.combatentes[0].mensagem_iniciativa())
+        self.imprime_cabecalho()
         for combatente in self.combatentes:
             combatente.decide_acao()
             print(combatente.mensagem_acao())
@@ -159,7 +161,6 @@ class Partida():
             self.aplica_efeitos_de_acao(self.combatentes[0])
             acao_extra -= 1
 
-        self.reporta_estatisticas()
         self.turno_numero += 1
         return 'fim de turno'
 
@@ -197,7 +198,8 @@ class Partida():
         elif (combatente.oponente.tem_vantagem and self.vantagem['tipo'] ==
               'defensiva'):
             dano *= 0.5
-        print(combatente.mensagem_dano(dano))
+        if dano > 0:
+            print(combatente.mensagem_dano(dano))
         combatente.oponente.altera_saude(-dano)
 
     def resolve_prontidao(self, combatente):
@@ -222,6 +224,19 @@ class Partida():
     def reporta_estatisticas(self):
         for combatente in sorted(self.combatentes, key=lambda x: x.nome):
             print(combatente.mensagem_atributos())
+
+    def imprime_cabecalho(self):
+        superior = "\nTurno {t}. {resumo_A} | {resumo_B}".format(
+                    t=self.turno_numero,
+                    resumo_A=self.combatentes[0].resumo_de_atributos(),
+                    resumo_B=self.combatentes[1].resumo_de_atributos())
+        iniciativa = "{nome} tem iniciativa.".format(
+                      nome=self.combatentes[0].nome)
+        vantagem = "{nome} tem vantagem {tipo}.".format(
+                    nome=self.vantagem["quem"].nome, tipo=self.vantagem["tipo"]
+                    ) if self.vantagem["quem"] is not None else "Ninguém tem \
+vantagem."
+        print(superior, "\n" + iniciativa, vantagem)
 
 
 if __name__ == '__main__':
