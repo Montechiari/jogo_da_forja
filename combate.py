@@ -125,8 +125,9 @@ class JogadorAleatorio(Combatente):
 
 
 class Partida():
-    def __init__(self):
+    def __init__(self, imprimir=True):
 
+        self.imprimir = imprimir
         self.vantagem = {'quem': None, 'tipo': None}
         self.combatentes = self.cria_combatentes()
         self.turno_numero = 1
@@ -149,14 +150,14 @@ class Partida():
         self.imprime_cabecalho()
         for combatente in self.combatentes:
             combatente.decide_acao()
-            print(combatente.mensagem_acao())
+            # print(combatente.mensagem_acao())
         self.traduz_acoes()
         for combatente in self.combatentes:
-            self.aplica_efeitos_de_acao(combatente)
+            print(self.aplica_efeitos_de_acao(combatente))
 
         while acao_extra > 0:
             self.combatentes[0].decide_acao()
-            print(self.combatentes[0].mensagem_acao())
+            # print(self.combatentes[0].mensagem_acao())
             self.traduz_acao_extra()
             self.aplica_efeitos_de_acao(self.combatentes[0])
             acao_extra -= 1
@@ -175,17 +176,19 @@ class Partida():
         self.combatentes[0].acao = acao_traduzida
 
     def aplica_efeitos_de_acao(self, combatente):
-        if combatente.acao[0] != '':
-            self.resolve_vantagem(combatente)
-        self.resolve_dano(combatente)
+        relatorio = [combatente]
         self.resolve_prontidao(combatente)
+        relatorio.append(self.resolve_dano(combatente))
+        if combatente.acao[0] != '':
+            relatorio.append(self.resolve_vantagem(combatente))
+        return relatorio
 
     def resolve_vantagem(self, combatente):
         self.vantagem['quem'] = combatente
         self.vantagem['tipo'] = combatente.acao[0]
-        print(combatente.mensagem_vantagem(self.vantagem['tipo']))
         combatente.oponente.tem_vantagem = False
         combatente.tem_vantagem = True
+        return "assume vantagem {tipo}".format(tipo=self.vantagem['tipo'])
 
     def resolve_dano(self, combatente):
         dano = 0
@@ -199,8 +202,8 @@ class Partida():
               'defensiva'):
             dano *= 0.5
         if dano > 0:
-            print(combatente.mensagem_dano(dano))
-        combatente.oponente.altera_saude(-dano)
+            combatente.oponente.altera_saude(-dano)
+            return "recebe {dano} pontos de dano".format(dano=dano)
 
     def resolve_prontidao(self, combatente):
         prontidao_nova = combatente.acao[3]
