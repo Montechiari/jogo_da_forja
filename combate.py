@@ -148,12 +148,8 @@ class Partida():
 
     def cria_combatentes(self):
         combatentes = [JogadorAleatorio("Carlos"), JogadorAleatorio("Hicham")]
-
-        ordem_invertida = copy(combatentes)
-        ordem_invertida.reverse()
-
-        for i, combatente in enumerate(combatentes):
-            combatente.oponente = ordem_invertida[i]
+        for i in range(-1, len(combatentes) - 1):
+            combatentes[i].oponente = combatentes[i + 1]
         return combatentes
 
     def novo_turno(self):
