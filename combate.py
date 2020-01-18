@@ -32,7 +32,7 @@ NOME_DE_ACAO = ['movimento ofensivo.', 'movimento defensivo.',
 
 
 class Arma():
-    def __init__(self, corte, estocada):
+    def __init__(self, estocada, corte):
         self.corte = corte
         self.estocada = estocada
 
@@ -56,8 +56,7 @@ class Combatente():
             return (primeiro_atributo, segundo_atributo)
 
         saude, prontidao = sorteio(SAUDE_PRONTIDAO_MAX, SAUDE_PRONTIDAO_MIN)
-        arma = Arma()
-        arma.estocada, arma.corte = sorteio(DANO_ARMA_MAX, DANO_ARMA_MIN)
+        arma = Arma(*sorteio(DANO_ARMA_MAX, DANO_ARMA_MIN))
         return saude, prontidao, arma
 
     def altera_saude(self, montante):
@@ -76,7 +75,7 @@ class Combatente():
     def resumo_de_atributos(self):
         return "{nome}, {saude}s, {prontidao}p, ({estocada}e/{corte}c)".format(
                 nome=self.nome, saude=self.saude, prontidao=self.prontidao,
-                estocada=self.arma["estocada"], corte=self.arma["corte"]
+                estocada=self.arma.estocada, corte=self.arma.corte
                                                                               )
 
     def mensagem_acao(self):
@@ -199,9 +198,9 @@ class Partida():
     def resolve_dano(self, combatente):
         dano = 0
         if combatente.acao[2] == 'c':
-            dano = combatente.arma['corte']
+            dano = combatente.arma.corte
         elif combatente.acao[2] == 'e':
-            dano = combatente.arma['estocada']
+            dano = combatente.arma.estocada
         if (combatente.tem_vantagem and self.vantagem['tipo'] == 'ofensiva'):
             dano *= 2
         elif (combatente.oponente.tem_vantagem and self.vantagem['tipo'] ==
