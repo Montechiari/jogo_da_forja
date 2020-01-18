@@ -13,6 +13,26 @@ Ao início da partida, são gerados aleatoriamente os dois combatentes, que vari
 
 Todas as combinações de ações resultam em alterações em *vantagem*, *saude* ou *prontidão*. Uma variável importante é qual jogador tem iniciativa. Pode ser feita uma só função, opera com variações fornecidas por um dicionário de jogadas. A função dividiria a resolução da jogada com ordem baseada na iniciativa, e a resolução da jogada seria uma função à parte. Preliminarmente, haverá uma função para definição da iniciativa.
 
+# dados para treino de rede neural
+
+- razão entre atributos de arma (corte / estocada) ------------+
+- razão entre arma do combatente e do adversário (corte)       |
+- razão entre arma do combatente e do adversário (estocada)    | Dados permanentes
+- razão entre saude e prontidao do combatente                  |
+- razão entre saude do combatente e do adversário              |
+- razão entre prontidão do combatente e do adversário ---------+
+- número de turno ---------------------------------------------+
+- porcentagem atual de saúde                                   |
+- porcentagem atual de prontidão                               | Estado atual
+- porcentagem saúde adversário                                 | 
+- porcentagem prontidão adversário                             |
+- combatente tem vantagem? (binário)                           |
+- qual vantagem? (binário) ------------------------------------+
+- última ação -------------------------------------------------+
+- turno da última ação                                         | Histórico
+- última ação do adversário                                    |
+- turno da última ação do adversário --------------------------+
+
 # sobre o projeto
 
 A primeira etapa é implementar o jogo para browser. No final de cada jogo, dados sobre a partida serão enviados a um servidor, para treino da inteligência artificial. Isso deve estar explícito para os jogadores. Todos os jogadores enfrentarão a mesma inteligência artificial, que deve receber um nome próprio – que lhe dê personalidade. Um sistema clássico de high-score exibirá o nome do jogador que obteve mais vitórias contra a máquina.

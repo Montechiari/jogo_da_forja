@@ -42,6 +42,7 @@ class Combatente():
         self.nome = nome
         self.saude, self.prontidao, self.arma = self.sorteia_atributos()
         self.oponente = None
+        self.historico_de_acoes = []
         self.acao = None
         self.tem_vantagem = False
 
@@ -129,6 +130,16 @@ class JogadorAleatorio(Combatente):
         self.acao = np.random.randint(1, 7)
 
 
+class RegistroDeTurno():
+    def __init__(self):
+        pass
+
+    def registro_permanente(self, combatentes):
+        self.registro = {}
+        for combatente in combatentes:
+            self.registro[combatente.nome] = []
+
+
 class Vantagem():
     def __init__(self, quem=None, tipo=None):
         self.quem = quem
@@ -153,11 +164,16 @@ class Partida():
         return combatentes
 
     def novo_turno(self):
+
         numero_de_acoes_extras = self.determina_iniciativa()
+
         self.imprime_cabecalho()
+
         for combatente in self.combatentes:
             combatente.decide_acao()
+
         self.traduz_acoes(*self.combatentes)
+
         for combatente in self.combatentes:
             print(self.aplica_efeitos_de_acao(combatente))
 
