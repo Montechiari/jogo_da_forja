@@ -129,11 +129,17 @@ class JogadorAleatorio(Combatente):
         self.acao = np.random.randint(1, 7)
 
 
+class Vantagem():
+    def __init__(self, quem=None, tipo=None):
+        self.quem = quem
+        self.tipo = tipo
+
+
 class Partida():
     def __init__(self, imprimir=True):
 
         self.imprimir = imprimir
-        self.vantagem = {'quem': None, 'tipo': None}
+        self.vantagem = Vantagem()
         self.combatentes = self.cria_combatentes()
         self.turno_numero = 1
         while self.todos_vivos() and self.turno_numero < 20:
@@ -189,11 +195,10 @@ class Partida():
         return relatorio
 
     def resolve_vantagem(self, combatente):
-        self.vantagem['quem'] = combatente
-        self.vantagem['tipo'] = combatente.acao[0]
+        self.vantagem = Vantagem(combatente, combatente.acao[0])
         combatente.oponente.tem_vantagem = False
         combatente.tem_vantagem = True
-        return "assume vantagem {tipo}".format(tipo=self.vantagem['tipo'])
+        return "assume vantagem {tipo}".format(tipo=self.vantagem.tipo)
 
     def resolve_dano(self, combatente):
         dano = 0
@@ -201,9 +206,9 @@ class Partida():
             dano = combatente.arma.corte
         elif combatente.acao[2] == 'e':
             dano = combatente.arma.estocada
-        if (combatente.tem_vantagem and self.vantagem['tipo'] == 'ofensiva'):
+        if (combatente.tem_vantagem and self.vantagem.tipo == 'ofensiva'):
             dano *= 2
-        elif (combatente.oponente.tem_vantagem and self.vantagem['tipo'] ==
+        elif (combatente.oponente.tem_vantagem and self.vantagem.tipo ==
               'defensiva'):
             dano *= 0.5
         if dano > 0:
@@ -212,7 +217,7 @@ class Partida():
 
     def resolve_prontidao(self, combatente):
         prontidao_nova = combatente.acao[3]
-        if combatente.tem_vantagem and self.vantagem['tipo'] == 'defensiva':
+        if combatente.tem_vantagem and self.vantagem.tipo == 'defensiva':
             prontidao_nova += 1
         combatente.altera_prontidao(prontidao_nova)
 
@@ -241,8 +246,8 @@ class Partida():
         iniciativa = "{nome} tem iniciativa.".format(
                       nome=self.combatentes[0].nome)
         vantagem = "{nome} tem vantagem {tipo}.".format(
-                    nome=self.vantagem["quem"].nome, tipo=self.vantagem["tipo"]
-                    ) if self.vantagem["quem"] is not None else "Ninguém tem \
+                    nome=self.vantagem.quem.nome, tipo=self.vantagem.tipo
+                    ) if self.vantagem.quem is not None else "Ninguém tem \
 vantagem."
         print(superior, "\n" + iniciativa, vantagem)
 
