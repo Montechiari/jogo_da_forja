@@ -1,4 +1,3 @@
-from copy import copy
 import numpy as np
 
 SAUDE_PRONTIDAO_MAX = 20
@@ -47,6 +46,7 @@ class Combatente():
         self.tem_vantagem = False
 
     def sorteia_atributos(self):
+
         def sorteio(maximo, minimo):
             pontos_livres = maximo - (2 * minimo)
             primeiro_atributo = minimo + np.random.randint(0,
@@ -153,34 +153,31 @@ class Partida():
         return combatentes
 
     def novo_turno(self):
-        acao_extra = self.determina_iniciativa()
+        numero_de_acoes_extras = self.determina_iniciativa()
         self.imprime_cabecalho()
         for combatente in self.combatentes:
             combatente.decide_acao()
-            # print(combatente.mensagem_acao())
-        self.traduz_acoes()
+        self.traduz_acoes(*self.combatentes)
         for combatente in self.combatentes:
             print(self.aplica_efeitos_de_acao(combatente))
 
-        while acao_extra > 0:
+        while numero_de_acoes_extras > 0:
             self.combatentes[0].decide_acao()
-            # print(self.combatentes[0].mensagem_acao())
-            self.traduz_acao_extra()
+            self.traduz_acoes(*self.combatentes, acao_extra=True)
             self.aplica_efeitos_de_acao(self.combatentes[0])
-            acao_extra -= 1
+            numero_de_acoes_extras -= 1
 
         self.turno_numero += 1
         return 'fim de turno'
 
-    def traduz_acoes(self):
-        indice_de_acao = COMBINACOES_DE_ACOES[self.combatentes[0].acao - 1
-                                              ][self.combatentes[1].acao - 1]
-        for i, combatente in enumerate(self.combatentes):
-            combatente.acao = ACOES_CODIFICADAS[indice_de_acao[i]]
-
-    def traduz_acao_extra(self):
-        acao_traduzida = ACOES_CODIFICADAS[str(self.combatentes[0].acao - 1)]
-        self.combatentes[0].acao = acao_traduzida
+    def traduz_acoes(self, ativo, passivo, acao_extra=False):
+        if acao_extra:
+            ativo.acao = ACOES_CODIFICADAS[str(ativo.acao - 1)]
+        else:
+            indice_de_acao = COMBINACOES_DE_ACOES[ativo.acao - 1
+                                                  ][passivo.acao - 1]
+            for i, combatente in enumerate([ativo, passivo]):
+                combatente.acao = ACOES_CODIFICADAS[indice_de_acao[i]]
 
     def aplica_efeitos_de_acao(self, combatente):
         relatorio = [combatente]
