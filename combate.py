@@ -31,6 +31,12 @@ NOME_DE_ACAO = ['movimento ofensivo.', 'movimento defensivo.',
                 'defesa corte.', 'defesa estocada.']
 
 
+class Arma():
+    def __init__(self, corte, estocada):
+        self.corte = corte
+        self.estocada = estocada
+
+
 class Combatente():
     def __init__(self, nome):
 
@@ -50,8 +56,8 @@ class Combatente():
             return (primeiro_atributo, segundo_atributo)
 
         saude, prontidao = sorteio(SAUDE_PRONTIDAO_MAX, SAUDE_PRONTIDAO_MIN)
-        arma = {}
-        arma['estocada'], arma['corte'] = sorteio(DANO_ARMA_MAX, DANO_ARMA_MIN)
+        arma = Arma()
+        arma.estocada, arma.corte = sorteio(DANO_ARMA_MAX, DANO_ARMA_MIN)
         return saude, prontidao, arma
 
     def altera_saude(self, montante):
