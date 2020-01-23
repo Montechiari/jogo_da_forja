@@ -152,15 +152,17 @@ class Vantagem():
 
 class Partida():
     def __init__(self):
+        pass
 
+    def inicia(self):
         self.vantagem = Vantagem()
         self.registro = RegistroDeTurno()
         self.combatentes = self.cria_combatentes()
         self.registro.coleta_dados_iniciais(self.combatentes)
+
         self.turno_numero = 1
         while self.todos_vivos() and self.turno_numero < 20:
             self.novo_turno()
-        print('fim da partida!')
 
     def cria_combatentes(self):
         combatentes = [JogadorAleatorio("Carlos"), JogadorAleatorio("Hicham")]
