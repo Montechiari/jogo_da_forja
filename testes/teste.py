@@ -1,37 +1,48 @@
 import unittest
-from unittest.mock import Mock
 import combate
 
 
 COMBATENTE_1 = {"nome": "Juca",
-                "saude": 10, "prontidao": 5,
+                "saude": 8, "prontidao": 7,
                 "arma": {"estocada": 3, "corte": 4}}
 COMBATENTE_2 = {"nome": "Marcio",
-                "saude": 8, "prontidao": 7,
+                "saude": 10, "prontidao": 5,
                 "arma": {"estocada": 4, "corte": 3}}
+DUMMIES = [COMBATENTE_1, COMBATENTE_2]
 
 
 class TesteDeCombate(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        cls.objeto_testado = combate.Partida()
-        cls.objeto_testado.combatentes = [COMBATENTE_1, COMBATENTE_2]
+    def setUp(self):
+        self.partida_falsa = combate.Partida()
+        self.partida_falsa.combatentes = self.partida_falsa.cria_combatentes()
+        self.combatentes_falsos = self.partida_falsa.combatentes
+        for i in range(2):
+            padroniza_combatentes(self.combatentes_falsos[i],
+                                  DUMMIES[i])
 
-    def test_partida(self):
-        pass
+    def test_combatentes_falsos(self):
+        for i, dummy in enumerate(DUMMIES):
+            for key in dummy:
+                self.assertEqual(
+                    eval("self.combatentes_falsos[{}].{}".format(i, key)),
+                    dummy[key])
+
+    def test_choque_entre_armas(self):
+        self.partida_falsa.determina_iniciativa()
+        for combatente in self.combatentes_falsos:
+            combatente.acao = 3
+        self.partida_falsa.traduz_acoes(*self.combatentes_falsos)
+        for combatente in self.combatentes_falsos:
+            self.partida_falsa.aplica_efeitos_de_acao(combatente)
+        for i in range(2):
+            self.assertEqual(self.combatentes_falsos[i].saude,
+                             DUMMIES[i]["saude"])
 
 
-def cria_combatente_falso(configuracoes):
-
-    def completa_atributos(objeto, configs, atributo):
-        exec("objeto.{atr} = \
-Mock(return_value=configs['{atr}'])".format(atr=atributo))
-
-    combatente = combate.JogadorAleatorio("qualquer")
+def padroniza_combatentes(combatente, configuracoes):
     for key in configuracoes.keys():
-        completa_atributos(combatente, configuracoes, key)
-    return combatente
+        exec("combatente.{atr} = configuracoes['{atr}']".format(atr=key))
 
 
 if __name__ == '__main__':
