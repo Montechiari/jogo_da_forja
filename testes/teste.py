@@ -38,6 +38,8 @@ class TesteDeCombate(unittest.TestCase):
         for i in range(2):
             self.assertEqual(self.combatentes_falsos[i].saude,
                              DUMMIES[i]["saude"])
+            self.assertEqual(self.combatentes_falsos[i].prontidao,
+                             DUMMIES[i]["prontidao"] - 1)
 
 
 def padroniza_combatentes(combatente, configuracoes):
