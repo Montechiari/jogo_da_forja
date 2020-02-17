@@ -1,6 +1,7 @@
 import numpy as np
 import operator
 from functools import reduce
+import csv
 
 SAUDE_PRONTIDAO_MAX = 25
 SAUDE_PRONTIDAO_MIN = 8
@@ -311,4 +312,8 @@ vantagem."
 
 
 if __name__ == '__main__':
-    partida = Partida()
+    # partida = Partida()
+    with open("./testes/resultados_combate.csv") as arquivocsv:
+        leitor = csv.reader(arquivocsv)
+        for row in leitor:
+            print(row)
