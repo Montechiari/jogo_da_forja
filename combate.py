@@ -279,10 +279,10 @@ class Partida():
                     resumo_A=self.combatentes[0].resumo_de_atributos(),
                     resumo_B=self.combatentes[1].resumo_de_atributos())
         iniciativa = "{nome} tem iniciativa.".format(
-                      nome=self.combatentes[0].nome)
+            nome=self.combatentes[0].nome)
         vantagem = "{nome} tem vantagem {tipo}.".format(
                     nome=self.vantagem.quem.nome, tipo=self.vantagem.tipo
-                    ) if self.vantagem.quem is not None else "Ninguém tem \
+        ) if self.vantagem.quem is not None else "Ninguém tem \
 vantagem."
         print(superior, "\n" + iniciativa, vantagem)
 
