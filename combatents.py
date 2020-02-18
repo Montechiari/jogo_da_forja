@@ -11,6 +11,9 @@ class Weapon:
         self.slash = slash_damage
         self.thrust = thrust_damage
 
+    def __repr__(self):
+        return f"slash damage: {self.slash}, thrust damage: {self.thrust}"
+
 
 class Combatent:
     def __init__(self, name):
@@ -19,6 +22,10 @@ class Combatent:
         self.opponent = None
         self.action = None
         self.has_advantage = False
+
+    def __repr__(self):
+        return f'''{self.name}\nhealth: {self.health}. reflex: {self.reflex}.
+weapon: {self.weapon};\n'''
 
     def generate_stats(self):
 
@@ -32,22 +39,14 @@ class Combatent:
         weapon = Weapon(*random_stats(WEAPON_DMG_MAX, WEAPON_DMG_MIN))
         return health, reflex, weapon
 
-    def updade_health(self, how_much):
-        self.health += how_much
-
-    def updade_reflex(self, how_much):
-        new_reflex = self.reflex + how_much
-        self.reflex = new_reflex if new_reflex > 0 else 1
-
-    def inflict_damage(self, kind):
-        damage = self.weapon[kind]
-        self.opponent.updade_health(-1 * damage)
-
     def apply_changes(self, advantage_obj, change_instruction):
         '''format of instruction: [advantage, damage modifyer,
         damage kind, reflex modifyer]'''
         advantage, dmg_mod, dmg_kind, reflex_mod = tuple(change_instruction)
         self.change_advantage(advantage_obj, advantage)
+        modifyer = self.calc_dmg_bonus(dmg_mod, advantage_obj)
+        self.deal_damage(modifyer, dmg_kind)
+        self.updade_reflex(advantage_obj, reflex_mod)
 
     def change_advantage(self, advantage_obj, new_advantage):
         if new_advantage:
@@ -56,6 +55,41 @@ class Combatent:
             advantage_obj.who = self
             self.has_advantage = True
             advantage_obj.kind = new_advantage
+        return self.has_advantage
+
+    def calc_dmg_bonus(self, modifyer, advantage_obj):
+        advantage = {"offensive": 2,
+                     "defensive": 0.5,
+                     None: 1}
+        if self.has_advantage:
+            return modifyer * advantage[advantage_obj.kind]
+        else:
+            return modifyer
+
+    def deal_damage(self, modifyer, damage_kind):
+        if damage_kind:
+            damage = eval(f"self.weapon.{damage_kind}") * modifyer
+            self.inflict_damage(damage)
+            return damage
+        else:
+            return 0
+
+    def inflict_damage(self, damage):
+        self.opponent.updade_health(-1 * damage)
+
+    def updade_health(self, how_much):
+        new_health = self.health + how_much
+        self.health = new_health if new_health > 0 else 0
+
+    def updade_reflex(self, advantage_obj, how_much):
+        advantage = {"offensive": 0,
+                     "defensive": 1,
+                     None: 0}
+        if self.has_advantage:
+            how_much += advantage[advantage_obj.kind]
+        new_reflex = self.reflex + how_much
+        self.reflex = new_reflex if new_reflex > 0 else 1
+        return new_reflex
 
 
 class HumanPlayer(Combatent):

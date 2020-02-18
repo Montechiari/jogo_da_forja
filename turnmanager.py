@@ -3,6 +3,12 @@ class Advantage:
         self.who = who
         self.kind = kind
 
+    def __repr__(self):
+        if self.who:
+            return f"{self.who.name} has {self.kind} advantage."
+        else:
+            return "No one has advantage."
+
 
 class TurnManager:
     def __init__(self, players):
@@ -19,9 +25,17 @@ class TurnManager:
         self.turn += 1
         what_changes = self.find_turn_effects()
         for i, player in enumerate(self.players):
-            player.apply_changes(self.advantage_info, what_changes[i])
-        self.register_in_log()
-        return self.flavor_text()
+            game_over = self.a_player_is_dead()
+            if game_over is False:
+                player.apply_changes(self.advantage_info, what_changes[i])
+            print(repr(player))
+        return game_over
+
+    def a_player_is_dead(self):
+        dead_count = ['dead'
+                      for player in self.players
+                      if player.health <= 0]
+        return True if 'dead' in dead_count else False
 
     def register_in_log(self):
         for player in self.players:
@@ -39,8 +53,8 @@ class TurnManager:
                             ["40", "41", "84", "47", "44", "44"],
                             ["40", "41", "46", "84", "44", "44"]]
 
-        CODE_OF_EFFECTS = {"0": ['ofensiva', 0, None, 0],
-                           "1": ['defensiva', 0, None, 0],
+        CODE_OF_EFFECTS = {"0": ['offensive', 0, None, 0],
+                           "1": ['defensive', 0, None, 0],
                            "2": [None, 1, "slash", -1],
                            "3": [None, 1, "thrust", -1],
                            "4": [None, 0, None, -1],
