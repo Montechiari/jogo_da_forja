@@ -1,5 +1,6 @@
 from turnmanager import TurnManager
 from combatents import DummyPlayer
+from numpy import floor, log2
 
 
 class Match:
@@ -24,7 +25,13 @@ class Match:
         raise AttributeError
 
     def resolve_initiative(self):
-        pass
+        if self.players[0].reflex != self.players[1].reflex:
+            self.players.sort(key=lambda player: player.reflex,
+                              reverse=True)
+        assert self.players[0].reflex != 0, "Reflex can't be zero!"
+        # returns how many extra turns there'll be
+        return floor(abs(log2(self.players[0].reflex /
+                              self.players[1].reflex)))
 
     def introduce_opponents(self, players):
         for i in range(-1, len(players) - 1):
