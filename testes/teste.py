@@ -8,6 +8,7 @@ import numpy as np
 COMBATENTE_1 = {"nome": "Juca",
                 "saude": 8.0, "prontidao": 7.0,
                 "arma": {"estocada": 3.0, "corte": 4.0}}
+
 COMBATENTE_2 = {"nome": "Marcio",
                 "saude": 10.0, "prontidao": 5.0,
                 "arma": {"estocada": 4.0, "corte": 3.0}}
@@ -73,6 +74,14 @@ class TabelaResultadoCombate():
 
 
 class TesteDeCombate(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.objeto_testado = combate.Partida()
+        cls.objeto_testado.combatentes = [COMBATENTE_1, COMBATENTE_2]
+        for i in range(-1, 1):
+            cls.objeto_testado.combatentes[i].oponente = cls.objeto_testado[i +
+                                                                           1]
 
     def setUp(self):
         self.partida_falsa = combate.Partida()
