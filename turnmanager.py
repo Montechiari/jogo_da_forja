@@ -10,6 +10,10 @@ class Advantage:
             return "No one has advantage."
 
 
+class Turn:
+    pass
+
+
 class TurnManager:
     def __init__(self, players):
         # players is a pair of Combatent instances, found in combatents.py

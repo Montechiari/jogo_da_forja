@@ -1,12 +1,11 @@
-from turnmanager import TurnManager
-from combatents import DummyPlayer
+from turnmanager import TurnManager, Turn
+from battle_log import BattleLogger
 from numpy import floor, log2
 
 
 class Match:
-    def __init__(self):
-        self.players = self.create_combatents()
-        self.introduce_opponents(self.players)
+    def __init__(self, players):
+        self.players = players
         self.turn_manager = TurnManager(self.players)
 
     def start(self):
@@ -21,9 +20,6 @@ class Match:
                   self.turn_manager.advantage_info, "\n")
             game_over = self.turn_manager.process_turn()
 
-    def create_combatents(self):
-        raise AttributeError
-
     def resolve_initiative(self):
         if self.players[0].reflex != self.players[1].reflex:
             self.players.sort(key=lambda player: player.reflex,
@@ -32,20 +28,3 @@ class Match:
         # returns how many extra turns there'll be
         return floor(abs(log2(self.players[0].reflex /
                               self.players[1].reflex)))
-
-    def introduce_opponents(self, players):
-        for i in range(-1, len(players) - 1):
-            players[i].opponent = players[i + 1]
-
-
-class MatchAutomatic(Match):
-    def __init__(self):
-        Match.__init__(self)
-
-    def create_combatents(self):
-        return [DummyPlayer("Carlos"), DummyPlayer("Erasmo")]
-
-
-if __name__ == '__main__':
-    match = MatchAutomatic()
-    match.start()
