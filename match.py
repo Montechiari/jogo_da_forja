@@ -1,24 +1,39 @@
-from turnmanager import TurnManager, Turn
+from turnmanager import TurnManager
 from battle_log import BattleLogger
 from numpy import floor, log2
+
+
+MAX_TURNS = 20
+
+
+class Advantage:
+    def __init__(self, who=None, kind=None):
+        self.who = who
+        self.kind = kind
+
+    def __repr__(self):
+        if self.who:
+            return f"{self.who.name} has {self.kind} advantage."
+        else:
+            return "No one has advantage."
 
 
 class Match:
     def __init__(self, players):
         self.players = players
-        self.turn_manager = TurnManager(self.players)
+        self.advantage = Advantage()
+        self.log = BattleLogger()
+        self.turn_manager = TurnManager(self.log)
+        self.match_over = False
 
     def start(self):
-        game_over = False
-        while (self.turn_manager.turn < 20 and game_over is False):
-            self.resolve_initiative()
-            moves = []
-            for player in self.players:
-                player.take_action()
-                moves.append(player.action)
-            print(f"\nTurn {self.turn_manager.turn + 1} - {moves} -",
-                  self.turn_manager.advantage_info, "\n")
-            game_over = self.turn_manager.process_turn()
+        while (self.turn_manager.turn < MAX_TURNS and
+               self.no_player_is_dead()):
+            bonus_action = self.resolve_initiative()
+            moves = self.request_actions(bonus_action)
+            # print(f"\nTurn {self.turn_manager.turn + 1} - {moves} -",
+            #       self.turn_manager.advantage_info, "\n")
+            self.turn_manager.process_turn(self.match_state(moves))
 
     def resolve_initiative(self):
         if self.players[0].reflex != self.players[1].reflex:
@@ -28,3 +43,15 @@ class Match:
         # returns how many extra turns there'll be
         return floor(abs(log2(self.players[0].reflex /
                               self.players[1].reflex)))
+
+    def no_player_is_dead(self):
+        dead_count = ['dead' for player in self.players if player.health <= 0]
+        return False if 'dead' in dead_count else True
+
+    def request_actions(self, bonus_action):
+        actions = [player.take_action() for player in self.players]
+        return [actions.append(self.players[0].take_action)
+                for i in range(bonus_action)]
+
+    def match_state(self):
+        pass
