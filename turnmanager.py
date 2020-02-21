@@ -11,21 +11,26 @@ class Advantage:
 
 
 class Turn:
-    pass
+    def __init__(self, state_before):
+        self.state_before = state_before
+
+    def next_state(self):
+        pass
 
 
 class TurnManager:
     def __init__(self, match_log):
         # players is a pair of Combatent instances, found in combatents.py
+        self.advantage = Advantage()
         self.match_log = match_log
-        self.turn = 0
 
     def start_match_log(self):
         return {player.name: [] for player in self.players}
 
     def process_turn(self, match_state):
-        self.turn += 1
-        return self.find_turn_effects(match_state["moves"])
+        this_turn = Turn(match_state)
+        self.match_log.add_turn(this_turn)
+        return this_turn.next_state()
         # player.apply_changes(self.advantage_info, what_changes[i])
 
     def register_in_log(self):

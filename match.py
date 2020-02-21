@@ -6,32 +6,22 @@ from numpy import floor, log2
 MAX_TURNS = 20
 
 
-class Advantage:
-    def __init__(self, who=None, kind=None):
-        self.who = who
-        self.kind = kind
-
-    def __repr__(self):
-        if self.who:
-            return f"{self.who.name} has {self.kind} advantage."
-        else:
-            return "No one has advantage."
-
-
 class Match:
     def __init__(self, players):
         self.players = players
-        self.advantage = Advantage()
         self.log = BattleLogger()
         self.turn_manager = TurnManager(self.log)
         self.match_over = False
 
     def start(self):
-        while (self.turn_manager.turn < MAX_TURNS and
+        turn = 1
+        while (turn < MAX_TURNS and
                self.no_player_is_dead()):
             bonus_action = self.resolve_initiative()
             moves = self.request_actions(bonus_action)
-            print(self.turn_manager.process_turn(self.match_state(moves)))
+            print(self.turn_manager.process_turn(turn,
+                                                 self.match_state(moves)))
+            turn += 1
 
     def resolve_initiative(self):
         if self.players[0].reflex != self.players[1].reflex:
@@ -55,5 +45,6 @@ class Match:
 
     def match_state(self, moves):
         player_list = [eval(repr(player)) for player in self.players]
-        advantage = {"who": self.advantage.who, "kind": self.advantage.kind}
-        return {"players": player_list, "advantage": advantage, "moves": moves}
+        # advantage = {"who": self.advantage.who, "kind": self.advantage.kind}
+        # return {"players": player_list,
+        #         "advantage": advantage, "moves": moves}
