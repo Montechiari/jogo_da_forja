@@ -23,15 +23,10 @@ class TurnManager:
     def start_match_log(self):
         return {player.name: [] for player in self.players}
 
-    def process_turn(self, players, advantage):
+    def process_turn(self, match_state):
         self.turn += 1
-        what_changes = self.find_turn_effects()
-        for i, player in enumerate(self.players):
-            game_over = self.a_player_is_dead()
-            if game_over is False:
-                player.apply_changes(self.advantage_info, what_changes[i])
-            print(repr(player))
-        return game_over
+        return self.find_turn_effects(match_state["moves"])
+        # player.apply_changes(self.advantage_info, what_changes[i])
 
     def register_in_log(self):
         for player in self.players:

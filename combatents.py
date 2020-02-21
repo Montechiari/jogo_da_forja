@@ -12,7 +12,8 @@ class Weapon:
         self.thrust = thrust_damage
 
     def __repr__(self):
-        return f"slash damage: {self.slash}, thrust damage: {self.thrust}"
+        return f"'slash damage': {self.slash}, \
+'thrust damage': {self.thrust}"
 
 
 class Combatent:
@@ -24,11 +25,14 @@ class Combatent:
         self.has_advantage = False
 
     def __repr__(self):
-        return f'''{self.name}\nhealth: {self.health}. reflex: {self.reflex}.
-weapon: {self.weapon};\n'''
+        weapon = "".join(['{', repr(self.weapon), '}'])
+        return ", ".join([
+                          "{'name': '%s'" % self.name,
+                          "'health': %d" % self.health,
+                          "'reflex': %d" % self.reflex,
+                          "'weapon': %s}" % weapon])
 
     def generate_stats(self):
-
         def random_stats(max, min):
             points_to_distribute = max - (2 * min)
             first_attribute = min + randint(0, points_to_distribute + 1)

@@ -31,9 +31,7 @@ class Match:
                self.no_player_is_dead()):
             bonus_action = self.resolve_initiative()
             moves = self.request_actions(bonus_action)
-            # print(f"\nTurn {self.turn_manager.turn + 1} - {moves} -",
-            #       self.turn_manager.advantage_info, "\n")
-            self.turn_manager.process_turn(self.match_state(moves))
+            print(self.turn_manager.process_turn(self.match_state(moves)))
 
     def resolve_initiative(self):
         if self.players[0].reflex != self.players[1].reflex:
@@ -41,8 +39,8 @@ class Match:
                               reverse=True)
         assert self.players[0].reflex != 0, "Reflex can't be zero!"
         # returns how many extra turns there'll be
-        return floor(abs(log2(self.players[0].reflex /
-                              self.players[1].reflex)))
+        return int(floor(abs(log2(self.players[0].reflex /
+                                  self.players[1].reflex))))
 
     def no_player_is_dead(self):
         dead_count = ['dead' for player in self.players if player.health <= 0]
@@ -50,8 +48,12 @@ class Match:
 
     def request_actions(self, bonus_action):
         actions = [player.take_action() for player in self.players]
-        return [actions.append(self.players[0].take_action)
-                for i in range(bonus_action)]
+        for i in range(bonus_action):
+            actions.append(self.players[0].take_action)
+            actions.append(0)
+        return actions
 
-    def match_state(self):
-        pass
+    def match_state(self, moves):
+        player_list = [eval(repr(player)) for player in self.players]
+        advantage = {"who": self.advantage.who, "kind": self.advantage.kind}
+        return {"players": player_list, "advantage": advantage, "moves": moves}
