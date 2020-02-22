@@ -12,8 +12,8 @@ class Weapon:
         self.thrust = thrust_damage
 
     def __repr__(self):
-        return f"'slash damage': {self.slash}, \
-'thrust damage': {self.thrust}"
+        return f"'slash': {self.slash}, \
+'thrust': {self.thrust}"
 
 
 class Combatent:
@@ -27,8 +27,7 @@ class Combatent:
     def __repr__(self):
         weapon = "".join(['{', repr(self.weapon), '}'])
         return ", ".join([
-                          "{'name': '%s'" % self.name,
-                          "'health': %d" % self.health,
+                          "{'health': %d" % self.health,
                           "'reflex': %d" % self.reflex,
                           "'weapon': %s}" % weapon])
 
@@ -42,6 +41,10 @@ class Combatent:
         health, reflex = random_stats(HEALTH_REFLEX_MAX, HEATH_REFLEX_MIN)
         weapon = Weapon(*random_stats(WEAPON_DMG_MAX, WEAPON_DMG_MIN))
         return health, reflex, weapon
+
+    def update(self, new_attributes_dict):
+        self.health = new_attributes_dict['health']
+        self.reflex = new_attributes_dict['reflex']
 
     def apply_changes(self, advantage_obj, change_instruction):
         '''format of instruction: [advantage, damage modifyer,

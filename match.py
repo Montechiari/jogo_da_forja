@@ -22,6 +22,7 @@ class Match:
                 current_state = self.turn_manager.process_turn(
                                 self.match_state(moves, current_state)
                                                           )
+                self.update_players(current_state)
                 print(current_state)
             else:
                 break
@@ -46,13 +47,21 @@ class Match:
             actions.append(0)
         return actions
 
+    def update_players(self, state):
+        for player in self.players:
+            for new_attributes in state['players']:
+                if player.name in new_attributes:
+                    player.update(new_attributes[player.name])
+
     def match_state(self, moves, state=None):
+        player_list = [{player.name: eval(repr(player))}
+                       for player in self.players]
         if not state:
-            player_list = [eval(repr(player)) for player in self.players]
             advantage = {"who": None,
                          "kind": None}
             return {"turn": 0, "players": player_list,
                     "advantage": advantage, "moves": moves}
         else:
+            state['players'] = player_list
             state["moves"] = moves
             return state

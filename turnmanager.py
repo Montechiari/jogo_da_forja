@@ -1,3 +1,6 @@
+from copy import deepcopy
+
+
 class Advantage:
     def __init__(self, who=None, kind=None):
         self.who = who
@@ -13,10 +16,63 @@ class Advantage:
 class Turn:
     def __init__(self, state_before):
         self.state_before = state_before
+        self.state_after = deepcopy(state_before)
 
     def next_state(self):
-        self.state_before["turn"] += 1
-        return self.state_before
+        self.state_after["turn"] += 1
+        what_changes = self.find_turn_effects(
+                            self.state_before["moves"]
+                                              )
+        self.make_changes(what_changes)
+        return self.state_after
+
+    def make_changes(self, what_changes):
+        for i in range(-1, 1):
+            player = self.state_after['players'][i]
+            name, attributes = list(player.items())[0]
+
+            self.update_advantage(name, what_changes[i][0])
+            damage = self.calculate_damage(name, attributes,
+                                           what_changes[i][1:3])
+            self.inflict_damage(self.state_after['players'][i + 1], damage)
+            self.deduce_reflex(name, player, what_changes[i][3])
+
+    def update_advantage(self, name, adv_instruction):
+        if adv_instruction:
+            self.state_after["advantage"] = {"who": name,
+                                             "kind": adv_instruction}
+
+    def calculate_damage(self, name, attributes, dmg_instruction):
+        advantage = {"offensive": 2,
+                     "defensive": 0.5,
+                     None: 1}
+        modifyer = dmg_instruction[0]
+        if modifyer:
+            dmg = attributes['weapon'][dmg_instruction[1]]
+            if self.has_advantage(name):
+                modifyer *= advantage[self.state_after['advantage']['kind']]
+            return modifyer * dmg
+        else:
+            return 0
+
+    def inflict_damage(self, player, damage):
+        name, _ = list(player.items())[0]
+        new_health = player[name]['health'] - damage
+        player[name]['health'] = new_health if new_health > 0 else 0
+
+    def deduce_reflex(self, name, player, how_much):
+        advantage = {"offensive": 0,
+                     "defensive": 1,
+                     None: 0}
+
+        if self.has_advantage(name):
+            how_much += advantage[self.state_after['advantage']['kind']]
+        new_reflex = player[name]['reflex'] + how_much
+        player[name]['reflex'] = new_reflex if new_reflex > 0 else 1
+        return new_reflex
+
+    def has_advantage(self, name):
+        return self.state_after['advantage']['who'] == name
 
     def find_turn_effects(self, actions):
         ACTIONS_COMBINED = [["09", "09", "02", "03", "04", "03"],
@@ -36,9 +92,12 @@ class Turn:
                            "7": [None, 0.5, "thrust", -1],
                            "8": [None, 0, None, 1],
                            "9": [None, 0, None, 0]}
-        action1, action2 = (action - 1 for action in actions)
-        pair_of_keys = ACTIONS_COMBINED[action1][action2]
-        return [CODE_OF_EFFECTS[pair_of_keys[i]] for i in range(2)]
+        try:
+            action1, action2 = (action - 1 for action in actions)
+            pair_of_keys = ACTIONS_COMBINED[action1][action2]
+            return [CODE_OF_EFFECTS[pair_of_keys[i]] for i in range(2)]
+        except TypeError:
+            print(actions)
 
 
 class TurnManager:
