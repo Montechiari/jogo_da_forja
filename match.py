@@ -14,14 +14,17 @@ class Match:
         self.match_over = False
 
     def start(self):
-        turn = 1
-        while (turn < MAX_TURNS and
-               self.no_player_is_dead()):
-            bonus_action = self.resolve_initiative()
-            moves = self.request_actions(bonus_action)
-            print(self.turn_manager.process_turn(turn,
-                                                 self.match_state(moves)))
-            turn += 1
+        current_state = None
+        for i in range(MAX_TURNS):
+            if self.no_player_is_dead():
+                bonus_actions = self.resolve_initiative()
+                moves = self.request_actions(bonus_actions)
+                current_state = self.turn_manager.process_turn(
+                                self.match_state(moves, current_state)
+                                                          )
+                print(current_state)
+            else:
+                break
 
     def resolve_initiative(self):
         if self.players[0].reflex != self.players[1].reflex:
@@ -36,15 +39,20 @@ class Match:
         dead_count = ['dead' for player in self.players if player.health <= 0]
         return False if 'dead' in dead_count else True
 
-    def request_actions(self, bonus_action):
+    def request_actions(self, bonus_actions):
         actions = [player.take_action() for player in self.players]
-        for i in range(bonus_action):
+        for i in range(bonus_actions):
             actions.append(self.players[0].take_action)
             actions.append(0)
         return actions
 
-    def match_state(self, moves):
-        player_list = [eval(repr(player)) for player in self.players]
-        # advantage = {"who": self.advantage.who, "kind": self.advantage.kind}
-        # return {"players": player_list,
-        #         "advantage": advantage, "moves": moves}
+    def match_state(self, moves, state=None):
+        if not state:
+            player_list = [eval(repr(player)) for player in self.players]
+            advantage = {"who": None,
+                         "kind": None}
+            return {"turn": 0, "players": player_list,
+                    "advantage": advantage, "moves": moves}
+        else:
+            state["moves"] = moves
+            return state

@@ -15,31 +15,8 @@ class Turn:
         self.state_before = state_before
 
     def next_state(self):
-        pass
-
-
-class TurnManager:
-    def __init__(self, match_log):
-        # players is a pair of Combatent instances, found in combatents.py
-        self.advantage = Advantage()
-        self.match_log = match_log
-
-    def start_match_log(self):
-        return {player.name: [] for player in self.players}
-
-    def process_turn(self, match_state):
-        this_turn = Turn(match_state)
-        self.match_log.add_turn(this_turn)
-        return this_turn.next_state()
-        # player.apply_changes(self.advantage_info, what_changes[i])
-
-    def register_in_log(self):
-        for player in self.players:
-            self.match_log[player.name].append("log")
-
-    def flavor_text(self):
-        # TODO: text parser module
-        return "Flavor text not implemented."
+        self.state_before["turn"] += 1
+        return self.state_before
 
     def find_turn_effects(self, actions):
         ACTIONS_COMBINED = [["09", "09", "02", "03", "04", "03"],
@@ -59,7 +36,30 @@ class TurnManager:
                            "7": [None, 0.5, "thrust", -1],
                            "8": [None, 0, None, 1],
                            "9": [None, 0, None, 0]}
-
         action1, action2 = (action - 1 for action in actions)
         pair_of_keys = ACTIONS_COMBINED[action1][action2]
         return [CODE_OF_EFFECTS[pair_of_keys[i]] for i in range(2)]
+
+
+class TurnManager:
+    def __init__(self, match_log):
+        # players is a pair of Combatent instances, found in combatents.py
+        self.advantage = Advantage()
+        self.match_log = match_log
+
+    def start_match_log(self):
+        return {player.name: [] for player in self.players}
+
+    def process_turn(self, prior_state):
+        this_turn = Turn(prior_state)
+        self.match_log.add_turn(this_turn)
+        return this_turn.next_state()
+        # player.apply_changes(self.advantage_info, what_changes[i])
+
+    def register_in_log(self):
+        for player in self.players:
+            self.match_log[player.name].append("log")
+
+    def flavor_text(self):
+        # TODO: text parser module
+        return "Flavor text not implemented."
