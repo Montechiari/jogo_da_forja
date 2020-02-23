@@ -18,8 +18,20 @@ class Turn:
         self.state_before = state_before
         self.state_after = deepcopy(state_before)
 
+    def __repr__(self):
+        MOVE_TEXT = ['offensive movement', 'defensive movement',
+                     'slash attack', 'thrust attack',
+                     'slash defense', 'thrust defense']
+
+        report = ["Turn: %d" % self.state_before['turn']]
+        report.extend([str(self.state_before['advantage'])])
+        moves = self.state_before['moves']
+        report.extend([f"{MOVE_TEXT[moves[0] - 1]} {MOVE_TEXT[moves[1] - 1]}"])
+        report.extend([str(player) for player in self.state_before['players']])
+        return "\n".join(report)
+        return str(self.state_before) + "\n"
+
     def next_state(self):
-        self.state_after["turn"] += 1
         what_changes = self.find_turn_effects(
                             self.state_before["moves"]
                                               )
@@ -94,8 +106,11 @@ class Turn:
                            "9": [None, 0, None, 0]}
         try:
             action1, action2 = (action - 1 for action in actions)
-            pair_of_keys = ACTIONS_COMBINED[action1][action2]
-            return [CODE_OF_EFFECTS[pair_of_keys[i]] for i in range(2)]
+            if action2 >= 0:
+                pair_of_keys = ACTIONS_COMBINED[action1][action2]
+                return [CODE_OF_EFFECTS[pair_of_keys[i]] for i in range(2)]
+            else:
+                return [CODE_OF_EFFECTS[str(action1)], [None, 0, None, 0]]
         except TypeError:
             print(actions)
 
@@ -110,10 +125,18 @@ class TurnManager:
         return {player.name: [] for player in self.players}
 
     def process_turn(self, prior_state):
-        this_turn = Turn(prior_state)
-        self.match_log.add_turn(this_turn)
-        return this_turn.next_state()
-        # player.apply_changes(self.advantage_info, what_changes[i])
+        prior_state = deepcopy(prior_state)
+        prior_state['turn'] += 1
+        move_packages = self.split_bonus_actions(prior_state['moves'])
+        for package in move_packages:
+            prior_state['moves'] = package
+            this_turn = Turn(prior_state)
+            self.match_log.add_turn(this_turn)
+            prior_state = this_turn.next_state()
+        return prior_state
+
+    def split_bonus_actions(self, moves):
+        return [moves[i:i + 2] for i in range(0, len(moves), 2)]
 
     def register_in_log(self):
         for player in self.players:

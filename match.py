@@ -10,6 +10,7 @@ class Match:
     def __init__(self, players):
         self.players = players
         self.log = BattleLogger()
+        self.log.set_individual_logs(self.players)
         self.turn_manager = TurnManager(self.log)
         self.match_over = False
 
@@ -23,9 +24,10 @@ class Match:
                                 self.match_state(moves, current_state)
                                                           )
                 self.update_players(current_state)
-                print(current_state)
+                # print(current_state)
             else:
                 break
+        print(self.log.individual_logs)
 
     def resolve_initiative(self):
         if self.players[0].reflex != self.players[1].reflex:
@@ -43,7 +45,7 @@ class Match:
     def request_actions(self, bonus_actions):
         actions = [player.take_action() for player in self.players]
         for i in range(bonus_actions):
-            actions.append(self.players[0].take_action)
+            actions.append(self.players[0].take_action())
             actions.append(0)
         return actions
 

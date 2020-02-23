@@ -24,7 +24,7 @@ Todas as combinações de ações resultam em alterações em *vantagem*, *saude
 - número de turno ---------------------------------------------+
 - porcentagem atual de saúde                                   |
 - porcentagem atual de prontidão                               | Estado atual
-- porcentagem saúde adversário                                 | 
+- porcentagem saúde adversário                                 |
 - porcentagem prontidão adversário                             |
 - combatente tem vantagem? (binário)                           |
 - qual vantagem? (binário) ------------------------------------+
@@ -35,7 +35,21 @@ Todas as combinações de ações resultam em alterações em *vantagem*, *saude
 
 # sobre o projeto
 
-A primeira etapa é implementar o jogo para browser. No final de cada jogo, dados sobre a partida serão enviados a um servidor, para treino da inteligência artificial. Isso deve estar explícito para os jogadores. Todos os jogadores enfrentarão a mesma inteligência artificial, que deve receber um nome próprio – que lhe dê personalidade. Um sistema clássico de high-score exibirá o nome do jogador que obteve mais vitórias contra a máquina.
+A primeira etapa é implementar o jogo para browser. No final de cada jogo, dados sobre a partida serão enviados a um servidor, para treino da inteligência artificial. Isso deve estar explícito para os jogadores. Todos os jogadores enfrentarão a mesma i----------------------------------------+
+- turno da última ação                                         | Histórico
+- última ação do adversário                                    |
+- turno da última ação do adversário --------------------------+
+
+# sobre o projeto
+
+A primeira etapa é implementar o jogo para browser. No final de cada jogo, dados sobre a partida serão enviados a um servidor, para treino da inteligência artificial. Isso deve estar explícito para os jogadores. Todos os jogadores enfrentarão a mesnteligência artificial, que deve receber um nome próprio – que lhe dê personalidade. Um sistema clássico de high-score exibirá o nome do jogador que obteve m----------------------------------------+
+- turno da última ação                                         | Histórico
+- última ação do adversário                                    |
+- turno da última ação do adversário --------------------------+
+
+# sobre o projeto
+
+A primeira etapa é implementar o jogo para browser. No final de cada jogo, dados sobre a partida serão enviados a um servidor, para treino da inteligência artificial. Isso deve estar explícito para os jogadores. Todos os jogadores enfrentarão a mesais vitórias contra a máquina.
 
 A segunda etapa é introduzir traços de RPG ao jogo, com evolução de personagem e relações mais complexas durante o combate. Um exemplo é fazer o sucesso de um ataque ser suscetível à aleatoriedade. Existiria um trade-off, uma estocada teria menos probabilidades de acerto que um corte, mas causaria mais dano.
 
