@@ -27,7 +27,10 @@ class Match:
                 # print(current_state)
             else:
                 break
-        print(self.log.individual_logs)
+        for player in self.players:
+            for turn in self.log.turn_collection:
+                print(self.log.make_turn_vector(turn, player.name))
+            print("\n\n")
 
     def resolve_initiative(self):
         if self.players[0].reflex != self.players[1].reflex:
