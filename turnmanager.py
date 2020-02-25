@@ -19,7 +19,8 @@ class Turn:
         self.state_after = deepcopy(state_before)
 
     def __repr__(self):
-        ACTION_NAMES = ['offensive movement', 'defensive movement',
+        ACTION_NAMES = ['no action',
+                        'offensive movement', 'defensive movement',
                         'slash attack', 'thrust attack',
                         'slash defense', 'thrust defense']
 
@@ -29,13 +30,14 @@ class Turn:
         punctuation = [", ", "."]
         for i, player in enumerate(self.state_before['players']):
             name = list(player.keys())[0]
-            action = ACTION_NAMES[actions[i] - 1]
+            action = ACTION_NAMES[actions[i]]
             actions_line.append(f"{name} performs {action}")
             actions_line.append(punctuation[i])
         actions_line = "".join(actions_line)
         report.extend([str(player) for player in self.state_before['players']])
         advantage = self.state_before['advantage']
-        report.extend([f"{advantage['who']} has {advantage['kind']} advantage."])
+        report.extend([f"{advantage['who']} has " +
+                       f"{advantage['kind']} advantage."])
         report.extend([actions_line])
         # print(report)
         return "\n".join(report)
@@ -82,12 +84,6 @@ class Turn:
         player[name]['health'] = new_health if new_health > 0 else 0
 
     def deduce_reflex(self, name, player, how_much):
-        advantage = {"offensive": 0,
-                     "defensive": 1,
-                     None: 0}
-
-        if self.has_advantage(name):
-            how_much += advantage[self.state_after['advantage']['kind']]
         new_reflex = player[name]['reflex'] + how_much
         player[name]['reflex'] = new_reflex if new_reflex > 0 else 1
         return new_reflex
@@ -96,8 +92,8 @@ class Turn:
         return self.state_after['advantage']['who'] == name
 
     def find_turn_effects(self, actions):
-        ACTIONS_COMBINED = [["09", "09", "02", "03", "04", "03"],
-                            ["19", "19", "12", "13", "14", "13"],
+        ACTIONS_COMBINED = [["09", "09", "02", "03", "04", "04"],
+                            ["19", "19", "12", "13", "14", "14"],
                             ["20", "21", "44", "23", "48", "64"],
                             ["30", "31", "32", "33", "74", "48"],
                             ["40", "41", "84", "47", "44", "44"],

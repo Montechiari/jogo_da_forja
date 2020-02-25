@@ -2,11 +2,6 @@ from numpy import round
 
 
 class BattleLogger:
-
-    MOVE_TEXT = ['offensive movement', 'defensive movement',
-                 'slash attack', 'thrust attack',
-                 'slash defense', 'thrust defense']
-
     def __init__(self):
         self.turn_collection = []
 
