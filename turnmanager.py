@@ -19,17 +19,26 @@ class Turn:
         self.state_after = deepcopy(state_before)
 
     def __repr__(self):
-        MOVE_TEXT = ['offensive movement', 'defensive movement',
-                     'slash attack', 'thrust attack',
-                     'slash defense', 'thrust defense']
+        ACTION_NAMES = ['offensive movement', 'defensive movement',
+                        'slash attack', 'thrust attack',
+                        'slash defense', 'thrust defense']
 
         report = ["Turn: %d" % self.state_before['turn']]
-        report.extend([str(self.state_before['advantage'])])
         actions = self.state_before['actions']
-        report.extend([f"{MOVE_TEXT[actions[0] - 1]} {MOVE_TEXT[actions[1] - 1]}"])
+        actions_line = []
+        punctuation = [", ", "."]
+        for i, player in enumerate(self.state_before['players']):
+            name = list(player.keys())[0]
+            action = ACTION_NAMES[actions[i] - 1]
+            actions_line.append(f"{name} performs {action}")
+            actions_line.append(punctuation[i])
+        actions_line = "".join(actions_line)
         report.extend([str(player) for player in self.state_before['players']])
+        advantage = self.state_before['advantage']
+        report.extend([f"{advantage['who']} has {advantage['kind']} advantage."])
+        report.extend([actions_line])
+        # print(report)
         return "\n".join(report)
-        return str(self.state_before) + "\n"
 
     def calculate_next_state(self):
         what_changes = self.find_turn_effects(

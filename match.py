@@ -18,7 +18,7 @@ class Match:
     def start(self):
         current_state = self.match_state(NO_ACTIONS_YET)
         for i in range(MAX_TURNS):
-            how_many_bonus_actions = self.order_by_reflex(self.players)
+            how_many_bonus_actions = self.order_by_reflex(current_state)
             pairs_of_actions = self.request_actions(how_many_bonus_actions)
             for i, pair in enumerate(pairs_of_actions):
                 all_alive = self.no_player_is_dead()
@@ -38,10 +38,12 @@ class Match:
             print("\n", turn)
         print("\n", self.battle_log.turn_collection[-1].state_after)
 
-    def order_by_reflex(self, players):
-        if players[0].reflex != players[1].reflex:
-            players.sort(key=lambda player: player.reflex,
-                         reverse=True)
+    def order_by_reflex(self, state):
+        if self.players[0].reflex != self.players[1].reflex:
+            self.players.sort(key=lambda player: player.reflex,
+                              reverse=True)
+        state["players"] = [{player.name: eval(repr(player))}
+                            for player in self.players]
         # returns how many extra turns there'll be
         return int(floor(abs(log2(self.players[0].reflex /
                                   self.players[1].reflex))))
