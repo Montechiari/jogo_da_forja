@@ -120,19 +120,14 @@ class TurnManager:
         self.advantage = Advantage()
         self.match_log = match_log
 
-    def process_turn(self, prior_state):
-        prior_state = deepcopy(prior_state)
-        prior_state['turn'] += 1
-        action_pairs = self.segment_action_list(prior_state['actions'])
-        for pair in action_pairs:
-            prior_state['actions'] = pair
-            this_turn = Turn(prior_state)
-            self.match_log.add_turn(this_turn)
-            prior_state = this_turn.calculate_next_state()
-        return prior_state
-
-    def segment_action_list(self, actions):
-        return [actions[i:i + 2] for i in range(0, len(actions), 2)]
+    def process_turn(self, world_state, new_turn):
+        world_state = deepcopy(world_state)
+        if new_turn:
+            world_state['turn'] += 1
+        this_turn = Turn(world_state)
+        self.match_log.add_turn(this_turn)
+        world_state = this_turn.calculate_next_state()
+        return world_state
 
     def register_in_log(self):
         for player in self.players:

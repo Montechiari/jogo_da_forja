@@ -17,16 +17,21 @@ class Match:
 
     def start(self):
         current_state = self.match_state(NO_ACTIONS_YET)
-
         for i in range(MAX_TURNS):
             if self.no_player_is_dead():
 
                 how_many_bonus_actions = self.order_by_reflex(self.players)
-                current_state['actions'] = self.request_actions(
-                                                    how_many_bonus_actions
-                                                                )
-                current_state = self.turn_manager.process_turn(current_state)
-                self.update_players(current_state)
+
+                pairs_of_actions = self.request_actions(how_many_bonus_actions)
+                for i, pair in enumerate(pairs_of_actions):
+                    is_a_new_turn = True if i == 0 else False
+                    current_state['actions'] = pair
+                    current_state = self.turn_manager.process_turn(
+                                                        current_state,
+                                                        new_turn=is_a_new_turn
+                                                                    )
+                    self.update_players(current_state)
+
             else:
                 break
 
@@ -48,9 +53,9 @@ class Match:
         return False if 'dead' in dead_count else True
 
     def request_actions(self, how_many_bonus_actions):
-        actions = [player.take_action() for player in self.players]
+        actions = [[player.take_action() for player in self.players]]
         for i in range(how_many_bonus_actions):
-            actions.extend([self.players[0].take_action(), 0])
+            actions.append([self.players[0].take_action(), 0])
         return actions
 
     def update_players(self, state):
