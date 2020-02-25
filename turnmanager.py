@@ -25,15 +25,15 @@ class Turn:
 
         report = ["Turn: %d" % self.state_before['turn']]
         report.extend([str(self.state_before['advantage'])])
-        moves = self.state_before['moves']
-        report.extend([f"{MOVE_TEXT[moves[0] - 1]} {MOVE_TEXT[moves[1] - 1]}"])
+        actions = self.state_before['actions']
+        report.extend([f"{MOVE_TEXT[actions[0] - 1]} {MOVE_TEXT[actions[1] - 1]}"])
         report.extend([str(player) for player in self.state_before['players']])
         return "\n".join(report)
         return str(self.state_before) + "\n"
 
     def next_state(self):
         what_changes = self.find_turn_effects(
-                            self.state_before["moves"]
+                            self.state_before["actions"]
                                               )
         self.make_changes(what_changes)
         return self.state_after
@@ -127,16 +127,16 @@ class TurnManager:
     def process_turn(self, prior_state):
         prior_state = deepcopy(prior_state)
         prior_state['turn'] += 1
-        move_packages = self.split_bonus_actions(prior_state['moves'])
+        move_packages = self.split_bonus_actions(prior_state['actions'])
         for package in move_packages:
-            prior_state['moves'] = package
+            prior_state['actions'] = package
             this_turn = Turn(prior_state)
             self.match_log.add_turn(this_turn)
             prior_state = this_turn.next_state()
         return prior_state
 
-    def split_bonus_actions(self, moves):
-        return [moves[i:i + 2] for i in range(0, len(moves), 2)]
+    def split_bonus_actions(self, actions):
+        return [actions[i:i + 2] for i in range(0, len(actions), 2)]
 
     def register_in_log(self):
         for player in self.players:

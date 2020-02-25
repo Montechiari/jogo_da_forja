@@ -45,8 +45,8 @@ class BattleLogger:
                             self.static_logs[player_name][:2])
                 vector[6] = (iterated_dict['health'] / starting_health)
                 vector[7] = (iterated_dict['reflex'] / starting_reflex)
-                vector[12] = turn_info['moves'][0]
-                vector[13] = turn_info['moves'][1]
+                vector[12] = turn_info['actions'][0]
+                vector[13] = turn_info['actions'][1]
                 if i != 0:
                     vector[12], vector[13] = vector[13], vector[12]
             else:

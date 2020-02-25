@@ -4,6 +4,7 @@ from numpy import floor, log2
 
 
 MAX_TURNS = 20
+NO_ACTIONS_YET = [0, 0]
 
 
 class Match:
@@ -15,16 +16,18 @@ class Match:
         self.match_over = False
 
     def start(self):
-        current_state = None
+        # first current_state must have complete information
+        current_state = self.match_state(NO_ACTIONS_YET)
+
         for i in range(MAX_TURNS):
             if self.no_player_is_dead():
-                bonus_actions = self.resolve_initiative()
-                moves = self.request_actions(bonus_actions)
-                current_state = self.turn_manager.process_turn(
-                                self.match_state(moves, current_state)
-                                                          )
+
+                how_many_bonus_actions = self.order_by_reflex(self.players)
+                current_state['actions'] = self.request_actions(
+                                                    how_many_bonus_actions
+                                                                )
+                current_state = self.turn_manager.process_turn(current_state)
                 self.update_players(current_state)
-                # print(current_state)
             else:
                 break
         for player in self.players:
@@ -32,11 +35,10 @@ class Match:
                 print(self.log.make_turn_vector(turn, player.name))
             print("\n\n")
 
-    def resolve_initiative(self):
-        if self.players[0].reflex != self.players[1].reflex:
-            self.players.sort(key=lambda player: player.reflex,
-                              reverse=True)
-        assert self.players[0].reflex != 0, "Reflex can't be zero!"
+    def order_by_reflex(self, players):
+        if players[0].reflex != players[1].reflex:
+            players.sort(key=lambda player: player.reflex,
+                         reverse=True)
         # returns how many extra turns there'll be
         return int(floor(abs(log2(self.players[0].reflex /
                                   self.players[1].reflex))))
@@ -45,9 +47,9 @@ class Match:
         dead_count = ['dead' for player in self.players if player.health <= 0]
         return False if 'dead' in dead_count else True
 
-    def request_actions(self, bonus_actions):
+    def request_actions(self, how_many_bonus_actions):
         actions = [player.take_action() for player in self.players]
-        for i in range(bonus_actions):
+        for i in range(how_many_bonus_actions):
             actions.append(self.players[0].take_action())
             actions.append(0)
         return actions
@@ -58,15 +60,15 @@ class Match:
                 if player.name in new_attributes:
                     player.update(new_attributes[player.name])
 
-    def match_state(self, moves, state=None):
+    def match_state(self, actions, state=None):
         player_list = [{player.name: eval(repr(player))}
                        for player in self.players]
         if not state:
             advantage = {"who": None,
                          "kind": None}
             return {"turn": 0, "players": player_list,
-                    "advantage": advantage, "moves": moves}
+                    "advantage": advantage, "actions": actions}
         else:
             state['players'] = player_list
-            state["moves"] = moves
+            state["actions"] = actions
             return state
