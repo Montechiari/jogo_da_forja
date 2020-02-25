@@ -31,7 +31,7 @@ class Turn:
         return "\n".join(report)
         return str(self.state_before) + "\n"
 
-    def next_state(self):
+    def calculate_next_state(self):
         what_changes = self.find_turn_effects(
                             self.state_before["actions"]
                                               )
@@ -123,15 +123,15 @@ class TurnManager:
     def process_turn(self, prior_state):
         prior_state = deepcopy(prior_state)
         prior_state['turn'] += 1
-        move_packages = self.split_bonus_actions(prior_state['actions'])
-        for package in move_packages:
-            prior_state['actions'] = package
+        action_pairs = self.segment_action_list(prior_state['actions'])
+        for pair in action_pairs:
+            prior_state['actions'] = pair
             this_turn = Turn(prior_state)
             self.match_log.add_turn(this_turn)
-            prior_state = this_turn.next_state()
+            prior_state = this_turn.calculate_next_state()
         return prior_state
 
-    def split_bonus_actions(self, actions):
+    def segment_action_list(self, actions):
         return [actions[i:i + 2] for i in range(0, len(actions), 2)]
 
     def register_in_log(self):
