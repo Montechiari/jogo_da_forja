@@ -9,9 +9,11 @@ class Weapon:
         self.slash = slash_damage
         self.thrust = thrust_damage
 
+    def __str__(self):
+        return f"'slash': {self.slash}, 'thrust': {self.thrust}"
+
     def __repr__(self):
-        return f"'slash': {self.slash}, \
-'thrust': {self.thrust}"
+        return [self.slash, self.thrust]
 
 
 class Combatent:
@@ -23,7 +25,7 @@ class Combatent:
         self.has_advantage = False
 
     def __repr__(self):
-        weapon = "".join(['{', repr(self.weapon), '}'])
+        weapon = "".join(['{', str(self.weapon), '}'])
         return ", ".join([
                           "{'health': %d" % self.health,
                           "'reflex': %d" % self.reflex,
