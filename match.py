@@ -10,13 +10,12 @@ NO_ACTIONS_YET = [0, 0]
 class Match:
     def __init__(self, players):
         self.players = players
-        self.log = BattleLogger()
-        self.log.set_individual_logs(self.players)
-        self.turn_manager = TurnManager(self.log)
+        self.battle_log = BattleLogger()
+        self.battle_log.set_individual_logs(self.players)
+        self.turn_manager = TurnManager(self.battle_log)
         self.match_over = False
 
     def start(self):
-        # first current_state must have complete information
         current_state = self.match_state(NO_ACTIONS_YET)
 
         for i in range(MAX_TURNS):
@@ -30,9 +29,10 @@ class Match:
                 self.update_players(current_state)
             else:
                 break
+
         for player in self.players:
-            for turn in self.log.turn_collection:
-                print(self.log.make_turn_vector(turn, player.name))
+            for turn in self.battle_log.turn_collection:
+                print(self.battle_log.make_turn_vector(turn, player.name))
             print("\n\n")
 
     def order_by_reflex(self, players):
@@ -50,8 +50,7 @@ class Match:
     def request_actions(self, how_many_bonus_actions):
         actions = [player.take_action() for player in self.players]
         for i in range(how_many_bonus_actions):
-            actions.append(self.players[0].take_action())
-            actions.append(0)
+            actions.extend([self.players[0].take_action(), 0])
         return actions
 
     def update_players(self, state):

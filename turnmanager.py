@@ -117,12 +117,8 @@ class Turn:
 
 class TurnManager:
     def __init__(self, match_log):
-        # players is a pair of Combatent instances, found in combatents.py
         self.advantage = Advantage()
         self.match_log = match_log
-
-    def start_match_log(self):
-        return {player.name: [] for player in self.players}
 
     def process_turn(self, prior_state):
         prior_state = deepcopy(prior_state)
