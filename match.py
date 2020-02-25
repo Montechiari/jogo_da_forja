@@ -23,8 +23,8 @@ class Match:
             for i, pair in enumerate(pairs_of_actions):
                 all_alive = self.no_player_is_dead()
                 if all_alive:
-                    is_a_new_turn = True if i == 0 else False
                     current_state['actions'] = pair
+                    is_a_new_turn = True if i == 0 else False
                     current_state = self.turn_manager.process_turn(
                                                         current_state,
                                                         new_turn=is_a_new_turn
@@ -33,10 +33,10 @@ class Match:
             if not all_alive:
                 break
 
-        for player in self.players:
-            for turn in self.battle_log.turn_collection:
-                print(self.battle_log.make_turn_vector(turn, player.name))
-            print("\n\n")
+        # FOR TESTING ONLY
+        for turn in self.battle_log.turn_collection:
+            print("\n", turn)
+        print("\n", self.battle_log.turn_collection[-1].state_after)
 
     def order_by_reflex(self, players):
         if players[0].reflex != players[1].reflex:
