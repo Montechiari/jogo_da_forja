@@ -42,7 +42,7 @@ class Match:
         if self.players[0].reflex != self.players[1].reflex:
             self.players.sort(key=lambda player: player.reflex,
                               reverse=True)
-        state["players"] = [{player.name: eval(repr(player))}
+        state["players"] = [{player.name: eval(str(player))}
                             for player in self.players]
         # returns how many extra turns there'll be
         return int(floor(abs(log2(self.players[0].reflex /
@@ -65,7 +65,7 @@ class Match:
                     player.update(new_attributes[player.name])
 
     def match_state(self, actions, state=None):
-        player_list = [{player.name: eval(repr(player))}
+        player_list = [{player.name: eval(str(player))}
                        for player in self.players]
         if not state:
             advantage = {"who": None,

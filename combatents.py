@@ -20,16 +20,18 @@ class Combatent:
     def __init__(self, name):
         self.name = name
         self.health, self.reflex, self.weapon = self.generate_stats()
+        self.starting_health, self.starting_reflex = self.health, self.reflex
         self.opponent = None
-        self.action = None
-        self.has_advantage = False
 
-    def __repr__(self):
+    def __str__(self):
         weapon = "".join(['{', str(self.weapon), '}'])
         return ", ".join([
                           "{'health': %d" % self.health,
                           "'reflex': %d" % self.reflex,
                           "'weapon': %s}" % weapon])
+
+    def __repr__(self):
+        return [self.name, self.health, self.reflex, repr(self.weapon)]
 
     def generate_stats(self):
         def random_stats(max, min):
