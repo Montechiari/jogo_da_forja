@@ -7,7 +7,9 @@ NAMES_FOR_TESTING = ["Carlos", "Emar"]
 
 
 def create_players(mode):
-    print("Game mode:", mode)
+    full_name = {'dd': 'two dummies',
+                 'hd': 'human vs dummy'}
+    print("Game mode:", full_name[mode], '\n')
     creating_methods = {'dd': [DummyPlayer(name)
                                for name in NAMES_FOR_TESTING],
                         'hd': [combatent(NAMES_FOR_TESTING[i])
@@ -28,6 +30,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('game_mode', type=str)
     args = parser.parse_args()
+
     players = create_players(args.game_mode)
     match = Match(players)
     match.start()
