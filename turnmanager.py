@@ -39,7 +39,6 @@ class Turn:
         report.extend([f"{advantage['who']} has " +
                        f"{advantage['kind']} advantage."])
         report.extend([actions_line])
-        # print(report)
         return "\n".join(report)
 
     def calculate_next_state(self):

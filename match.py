@@ -17,7 +17,7 @@ class Match:
 
     def start(self):
         current_state = self.match_state(NO_ACTIONS_YET)
-        print(current_state)
+        self.introduce_match(current_state)
         for i in range(MAX_TURNS):
             how_many_bonus_actions = self.order_by_reflex(current_state)
             pairs_of_actions = self.request_actions(how_many_bonus_actions)
@@ -31,14 +31,18 @@ class Match:
                                                         new_turn=is_a_new_turn
                                                                     )
                     self.update_players(current_state)
-                    print(self.battle_log.turn_collection[-1])
+                    print(self.battle_log.turn_collection[-1].state_after)
             if not all_alive:
                 break
 
-        # FOR TESTING ONLY
-        # for turn in self.battle_log.turn_collection:
-        #     print("\n", turn)
-        # print("\n", self.battle_log.turn_collection[-1].state_after)
+    def introduce_match(self, state):
+        message = ["The match is about to start...\n\n"]
+        for player in state['players']:
+            name, data = list(player.items())[0]
+            message.append(f"{name}: {data['health']}hp | \
+{data['reflex']}rx | weapon: {data['weapon']}\n")
+        message.append("No one have advantage yet.")
+        print("".join(message))
 
     def order_by_reflex(self, state):
         if self.players[0].reflex != self.players[1].reflex:
@@ -51,11 +55,25 @@ class Match:
                                   self.players[1].reflex))))
 
     def no_player_is_dead(self):
-        dead_count = ['dead' for player in self.players if player.health <= 0]
-        return False if 'dead' in dead_count else True
+        dead_count = [f"{player.name} is dead."
+                      for player in self.players if player.health <= 0]
+        self.match_over_message(dead_count)
+        return False if len(dead_count) > 0 else True
+
+    def match_over_message(self, dead_count):
+        if len(dead_count) > 1:
+            message = "Both combatents are dead.\n"
+        elif len(dead_count) == 1:
+            message = dead_count[0]
+        else:
+            return
+        print("".join(["\n", message, "\nGame over."]))
 
     def request_actions(self, how_many_bonus_actions):
-        def request(player):
+        def request(player, bonus=False):
+            if bonus:
+                print(f"{player.name} have superior \
+reflexes and can take a bonus action.")
             while True:
                 try:
                     value = player.take_action()
@@ -68,7 +86,7 @@ class Match:
 
         actions = [[request(player) for player in self.players]]
         for i in range(how_many_bonus_actions):
-            actions.append([request(self.players[0]), 0])
+            actions.append([request(self.players[0], bonus=True), 0])
         return actions
 
     def update_players(self, state):
