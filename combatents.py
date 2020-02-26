@@ -1,7 +1,7 @@
 from numpy.random import randint
 
-HEALTH_REFLEX_MAX, HEATH_REFLEX_MIN = 25, 8
-WEAPON_DMG_MAX, WEAPON_DMG_MIN = 8, 3
+HEALTH_MAX_MIN = [25, 8]
+WEAPON_MAX_MIN = [8, 3]
 
 
 class Weapon:
@@ -33,6 +33,10 @@ class Combatent:
     def __repr__(self):
         return [self.name, self.health, self.reflex, repr(self.weapon)]
 
+    # default
+    def take_action(self):
+        return "Not implemented"
+
     def generate_stats(self):
         def random_stats(max, min):
             points_to_distribute = max - (2 * min)
@@ -40,8 +44,8 @@ class Combatent:
             second_attribute = max - first_attribute
             return (first_attribute, second_attribute)
 
-        health, reflex = random_stats(HEALTH_REFLEX_MAX, HEATH_REFLEX_MIN)
-        weapon = Weapon(*random_stats(WEAPON_DMG_MAX, WEAPON_DMG_MIN))
+        health, reflex = random_stats(*HEALTH_MAX_MIN)
+        weapon = Weapon(*random_stats(*WEAPON_MAX_MIN))
         return health, reflex, weapon
 
     def update(self, new_attributes_dict):
@@ -54,15 +58,15 @@ class HumanPlayer(Combatent):
         Combatent.__init__(self, name)
 
     def take_action(self):
-        return "Not implemented"
+        self.last_action = input(f"What action does {self.name} take?\
+ (between 1 and 6)\n")
+        self.last_action = int(self.last_action)
+        return self.last_action
 
 
 class AIPlayer(Combatent):
     def __init__(self, name):
         Combatent.__init__(self, name)
-
-    def take_action(self):
-        return "Not implemented"
 
 
 class DummyPlayer(Combatent):
@@ -70,5 +74,5 @@ class DummyPlayer(Combatent):
         Combatent.__init__(self, name)
 
     def take_action(self):
-        self.action = randint(1, 7)
-        return self.action
+        self.last_action = randint(1, 7)
+        return self.last_action

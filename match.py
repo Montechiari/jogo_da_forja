@@ -17,6 +17,7 @@ class Match:
 
     def start(self):
         current_state = self.match_state(NO_ACTIONS_YET)
+        print(current_state)
         for i in range(MAX_TURNS):
             how_many_bonus_actions = self.order_by_reflex(current_state)
             pairs_of_actions = self.request_actions(how_many_bonus_actions)
@@ -30,13 +31,14 @@ class Match:
                                                         new_turn=is_a_new_turn
                                                                     )
                     self.update_players(current_state)
+                    print(self.battle_log.turn_collection[-1])
             if not all_alive:
                 break
 
         # FOR TESTING ONLY
-        for turn in self.battle_log.turn_collection:
-            print("\n", turn)
-        print("\n", self.battle_log.turn_collection[-1].state_after)
+        # for turn in self.battle_log.turn_collection:
+        #     print("\n", turn)
+        # print("\n", self.battle_log.turn_collection[-1].state_after)
 
     def order_by_reflex(self, state):
         if self.players[0].reflex != self.players[1].reflex:
@@ -53,9 +55,20 @@ class Match:
         return False if 'dead' in dead_count else True
 
     def request_actions(self, how_many_bonus_actions):
-        actions = [[player.take_action() for player in self.players]]
+        def request(player):
+            while True:
+                try:
+                    value = player.take_action()
+                    assert (0 < value < 7), \
+                        "Action has to be an int between 1 and 6."
+                    break
+                except AssertionError as e:
+                    print(e)
+            return value
+
+        actions = [[request(player) for player in self.players]]
         for i in range(how_many_bonus_actions):
-            actions.append([self.players[0].take_action(), 0])
+            actions.append([request(self.players[0]), 0])
         return actions
 
     def update_players(self, state):
