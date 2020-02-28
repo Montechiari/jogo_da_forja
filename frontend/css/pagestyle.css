@@ -52,7 +52,7 @@ div {
 #advantage {
     width: 100px;
     height: 20px;
-    position: fixed;
+    position: absolute;
     top: 68px;
     margin-left: 340px;
     background-color: rgb(0, 255, 0);
@@ -76,7 +76,22 @@ div {
     width: 70%;
     background-color: rgb(162, 93, 221);
 }
+#actions > div {
+    display: grid;
+    width: 84px;
+    height: 80%;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius:  20px;
+    background-color: rgb(201, 17, 41);
+}
 #confirm {
     width: 30%;
     background-color: rgb(86, 162, 252)
+}
+#confirm > div {
+    display: block;
+    grid-template-columns: 1fr 1fr 1fr;
+    height: 33.3%;
+    width: 20px;
+    background-color: rgb(238, 108, 10);
 }

@@ -33,10 +33,20 @@ const Home = () => (
         <div className="text-box">TEXT BOX</div>
       </div>
       <div className="action-bar">
-         <div className="game-interface" id="actions">ACTIONS</div>
-         <div className="game-interface" id="confirm">CONFIRM</div>
+        <div className="game-interface" id="actions">
+            <div>1</div>
+            <div>2</div>
+            <div>3</div>
+            <div>4</div>
+            <div>5</div>
+            <div>6</div>
+        </div>
+         <div className="game-interface" id="confirm">
+             <div>1</div>
+             <div>2</div>
+             <div>3</div>
+         </div>
       </div>
-
   </div>
 )
 
