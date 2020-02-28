@@ -13,7 +13,6 @@ class Match:
         self.battle_log = BattleLogger()
         self.battle_log.set_individual_logs(self.players)
         self.turn_manager = TurnManager(self.battle_log)
-        self.match_over = False
 
     def start(self):
         current_state = self.match_state(NO_ACTIONS_YET)
@@ -77,11 +76,11 @@ reflexes and can take a bonus action.")
             while True:
                 try:
                     value = player.take_action()
-                    assert (0 < value < 7), \
-                        "Action has to be an int between 1 and 6."
+                    assert (0 < value < 7)
                     break
-                except AssertionError as e:
-                    print(e)
+                except (AssertionError, ValueError):
+                    print("Action has to be an integer between 1 and 6.")
+
             return value
 
         actions = [[request(player) for player in self.players]]

@@ -1,0 +1,82 @@
+:root {
+  --page-width: 780px;
+}
+
+div {
+    width: var(--page-width);
+    text-align: -webkit-center;
+    margin: 0 auto;
+}
+
+.display {
+    height: 375px;
+    background-color: rgb(0, 255, 0);
+}
+
+.players-box {
+    height: 250px;
+    background-color: rgba(215, 166, 38, 0.61);
+}
+
+.a-player {
+    display: inline-flex;
+    width: 50%;
+    height: inherit;
+}
+
+#player1 {
+    background-color: rgb(64, 43, 147);
+}
+
+#player2 {
+    background-color: rgb(187, 52, 79);
+}
+
+#player-stats-bar {
+    height: 60px;
+    background-color: rgba(0, 40, 195, 20%);
+}
+.info-strip {
+    text-align: left;
+    width: auto;
+    height: 20px;
+}
+#header-strip { background-color: rgba(0, 0, 255, 50%); }
+.sub-header {
+    display: inline-flex;
+    width: 50%;
+}
+#hp-strip { background-color: rgba(100, 0, 150, 60%); }
+#ap-strip { background-color: rgba(255, 0, 0, 50%); }
+
+#advantage {
+    width: 100px;
+    height: 20px;
+    position: fixed;
+    top: 68px;
+    margin-left: 340px;
+    background-color: rgb(0, 255, 0);
+}
+
+.text-box {
+    height: 125px;
+    background-color: rgba(150, 50, 80, 50%);
+}
+
+.action-bar {
+    height: 100px;
+    background-color: rgb(0, 0, 255);
+}
+.game-interface {
+    display: inline-flex;
+    width: 50%;
+    height: inherit;
+}
+#actions {
+    width: 70%;
+    background-color: rgb(162, 93, 221);
+}
+#confirm {
+    width: 30%;
+    background-color: rgb(86, 162, 252)
+}
