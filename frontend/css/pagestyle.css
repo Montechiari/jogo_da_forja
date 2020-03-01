@@ -1,20 +1,34 @@
 :root {
-  --page-width: 780px;
+    --page-width: 780px;
+}
+
+body {
+    background-color: black;
+    margin-top: 2%;
 }
 
 div {
     width: var(--page-width);
     text-align: -webkit-center;
-    margin: 0 auto;
+    margin: auto auto;
+}
+
+#top-margin-bar {
+    height: 20px;
+    background-color: white;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    background-image: linear-gradient(to top, black, rgb(21, 20, 26), rgb(21, 20, 26));
 }
 
 .display {
-    height: 375px;
+    margin-top: 0;
+    height: 205px;
     background-color: rgb(0, 255, 0);
 }
 
 .players-box {
-    height: 250px;
+    height: 60px;
     background-color: rgba(215, 166, 38, 0.61);
 }
 
@@ -36,62 +50,144 @@ div {
     height: 60px;
     background-color: rgba(0, 40, 195, 20%);
 }
+
 .info-strip {
     text-align: left;
     width: auto;
     height: 20px;
 }
-#header-strip { background-color: rgba(0, 0, 255, 50%); }
+
+#header-strip {
+    background-color: rgba(0, 0, 255, 50%);
+}
+
 .sub-header {
     display: inline-flex;
     width: 50%;
 }
-#hp-strip { background-color: rgba(100, 0, 150, 60%); }
-#ap-strip { background-color: rgba(255, 0, 0, 50%); }
+
+#hp-strip {
+    background-color: rgba(100, 0, 150, 60%);
+}
+
+#ap-strip {
+    background-color: rgba(255, 0, 0, 50%);
+}
 
 #advantage {
     width: 100px;
-    height: 20px;
-    position: absolute;
-    top: 68px;
+    /* height: 20px; */
+    position: relative;
+    top: 80px;
     margin-left: 340px;
     background-color: rgb(0, 255, 0);
 }
 
 .text-box {
-    height: 125px;
-    background-color: rgba(150, 50, 80, 50%);
+    line-height: 30px;
+    text-align: left;
+    font-family: "VT323";
+    text-shadow: 0 0 3px rgb(150, 196, 153);
+    height: 150px;
+    background-color: rgb(21, 20, 26);
+    color: white;
 }
 
 .action-bar {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 70% 30%;
     height: 100px;
     background-color: rgb(0, 0, 255);
+    border-top-left-radius: 10px;
 }
+
 .game-interface {
-    display: inline-flex;
-    width: 50%;
+    width: inherit;
     height: inherit;
 }
+
 #actions {
-    width: 70%;
-    background-color: rgb(162, 93, 221);
-}
-#actions > div {
     display: grid;
-    width: 84px;
-    height: 80%;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius:  20px;
-    background-color: rgb(201, 17, 41);
+    grid-template-columns: repeat(6, auto);
+    background-image: linear-gradient(rgb(11, 7, 2), rgb(89, 70, 47), rgb(145, 109, 65));
 }
-#confirm {
-    width: 30%;
-    background-color: rgb(86, 162, 252)
+
+#actions>div {
+    margin-left: 1px;
+    margin-top: 6px;
+    width: 90px;
+    height: 90px;
+    border-radius: 50px;
+    /* background-color: #c2c2c2; */
+    /* box-shadow: -10px 5px rgba(93, 65, 29, 20%); */
+    background-image: radial-gradient(circle 15px at 70% 25%, #c2c2c2, black);
 }
-#confirm > div {
-    display: block;
-    grid-template-columns: 1fr 1fr 1fr;
-    height: 33.3%;
-    width: 20px;
-    background-color: rgb(238, 108, 10);
+
+.button-image {
+    position: relative;
+    left: -1px;
+    bottom: 5px;
+}
+
+#offensive-movement {
+    margin-left: -3px;
+    margin-top: 0;
+}
+
+#defensive-movement {
+    margin-left: 8px;
+    margin-top: 2px;
+}
+
+#slash-attack {
+    margin-left: -5px;
+    margin-top: 2px;
+}
+
+#thrust-attack {
+    margin-left: 5px;
+    margin-top: -4px;
+}
+
+#slash-defense {
+    margin-left: 7px;
+    margin-top: 2px;
+}
+
+#thrust-defense {
+    margin-left: 2px;
+    margin-top: 4px;
+}
+
+#right-bar {
+    background-image: linear-gradient(rgb(145, 109, 65), rgb(89, 70, 47), rgb(11, 7, 2));
+}
+
+#right-bar>div {
+    color: rgb(145, 109, 65);
+    font-family: "IBM Plex Mono";
+    line-height: 28px;
+    text-shadow: 2px 2px 4px #000000;
+    height: 30px;
+    width: 232px;
+    border: 1px solid;
+    border-color: rgb(28, 15, 3);
+    border-style: inset;
+    background-image: linear-gradient(rgba(145, 109, 65, 10%), rgba(89, 70, 47,  90%), rgba(11, 7, 2, 10%));
+}
+
+#right-bar>div>div {
+    margin-top: 2px;
+    display: inline-flex;
+    height: 75%;
+    width: 49%;
+    background-color: rgba(19, 11, 4, 50%);
+}
+
+#foot {
+    height: 20px;
+    background-image: linear-gradient(to bottom, black, rgb(21, 20, 26));
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
 }
