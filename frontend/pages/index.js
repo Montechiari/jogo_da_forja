@@ -19,7 +19,10 @@ const Home = () => (
       </style>
     </Head>
     <div id="top-margin-bar"></div>
-      <div id="advantage">advantage</div>
+      <div className="advantage">
+        <div id="upper-adv"></div>
+        <div id="lower-adv"></div>
+      </div>
       <div className="display">
         <div className="players-box">
             <div className="a-player" id="player1">
@@ -28,7 +31,7 @@ const Home = () => (
                         <div className="sub-header">name</div>
                         <div className="sub-header">weapon</div>
                     </div>
-                    <div className="info-strip" id="hp-strip">hp bar</div>
+                    <div className="info-strip">hp bar</div>
                     <div className="info-strip" id="ap-strip">ap bar</div>
                 </div>
             </div>
@@ -38,7 +41,8 @@ const Home = () => (
                     <div className="sub-header">name</div>
                     <div className="sub-header">weapon</div>
                 </div>
-                <div className="info-strip" id="hp-strip">hp bar</div>
+                <label for="hp-strip">hp: </label>
+                <progress id="hp-strip" value="60" max="100"></progress>
                 <div className="info-strip" id="ap-strip">ap bar</div>
                 </div>
             </div>
@@ -49,24 +53,24 @@ const Home = () => (
       </div>
       <div className="action-bar">
         <div className="game-interface" id="actions">
-                <div>
-                    <img className="button-image" id="offensive-movement" src={action1} alt="stance1" width={actionPictureDiameter} height={actionPictureDiameter}/>
-                </div>
-                <div>
+                <button className="action-button">
+                    <img className="button-image" id="defensive-movement" src={action1} alt="stance2" width={actionPictureDiameter} height={actionPictureDiameter}/>
+                </button>
+                <button className="action-button">
                     <img className="button-image" id="defensive-movement" src={action2} alt="stance2" width={actionPictureDiameter} height={actionPictureDiameter}/>
-                </div>
-                <div>
+                </button>
+                <button className="action-button">
                     <img className="button-image" id="slash-attack" src={action3} alt="stance3" width={actionPictureDiameter} height={actionPictureDiameter}/>
-                </div>
-                <div>
+                </button>
+                <button className="action-button">
                     <img className="button-image" id="thrust-attack" src={action4} alt="stance4" width={actionPictureDiameter} height={actionPictureDiameter}/>
-                </div>
-                <div>
+                </button>
+                <button className="action-button">
                     <img className="button-image" id="slash-defense" src={action5} alt="stance5" width={actionPictureDiameter} height={actionPictureDiameter}/>
-                </div>
-                <div>
+                </button>
+                <button className="action-button">
                     <img className="button-image" id="thrust-defense" src={action6} alt="stance6" width={actionPictureDiameter} height={actionPictureDiameter}/>
-                </div>
+                </button>
         </div>
          <div className="game-interface" id="right-bar">
              <div>Turn: 666</div>
@@ -77,7 +81,9 @@ const Home = () => (
              </div>
          </div>
       </div>
-      <div id="foot"></div>
+      <div id="foot">
+          <p>Text</p>
+      </div>
   </div>
 )
 

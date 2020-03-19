@@ -1,6 +1,17 @@
 :root {
     --page-width: 780px;
+    --dark-screen-color: 21, 20, 26;
+    --main-console-color: 221, 191, 34; /*208, 156, 41*/;
+    --secundary-console-color: /* 157, 54, 27; */ 171, 82, 17;
+    --dark-console-color: 11, 7, 2;
 }
+/* COLOR PALETTE: black, white, rgb(0, 255, 0), rgba(215, 166, 38, 0.61),
+ rgb(21, 20, 26),  rgb(64, 43, 147), rgb(187, 52, 79), rgba(0, 40, 195, 20%),
+ rgba(0, 0, 255, 50%), rgb(150, 196, 153), #c2c2c2, rgb(28, 15, 3),
+ rgb(11, 7, 2), rgb(89, 70, 47), rgb(145, 109, 65), rgb(157, 54, 27),
+ rgb(221, 191, 34)
+ */
+
 
 body {
     background-color: black;
@@ -15,21 +26,21 @@ div {
 
 #top-margin-bar {
     height: 20px;
-    background-color: white;
+    /* background-color: white; */
     border-top-right-radius: 10px;
     border-top-left-radius: 10px;
-    background-image: linear-gradient(to top, black, rgb(21, 20, 26), rgb(21, 20, 26));
+    background-image: linear-gradient(to top, black, rgb(var(--dark-screen-color)), rgb(var(--dark-screen-color)));
 }
 
 .display {
     margin-top: 0;
     height: 205px;
-    background-color: rgb(0, 255, 0);
+    /* background-color: rgb(0, 255, 0); */
 }
 
 .players-box {
     height: 60px;
-    background-color: rgba(215, 166, 38, 0.61);
+    background-color: rgb(var(--secundary-console-color));
 }
 
 .a-player {
@@ -39,16 +50,20 @@ div {
 }
 
 #player1 {
-    background-color: rgb(64, 43, 147);
+    /* background-color: rgb(64, 43, 147); */
 }
 
 #player2 {
-    background-color: rgb(187, 52, 79);
+    /* background-color: rgb(187, 52, 79); */
 }
 
 #player-stats-bar {
     height: 60px;
-    background-color: rgba(0, 40, 195, 20%);
+    /* border: solid 1px; */
+    /* border-style: inset; */
+    /* border-color: rgb(var(--secundary-console-color)); */
+    /* background-color: rgba(0, 40, 195, 20%); */
+    background-image: linear-gradient(to top, rgba(var(--dark-console-color), 50%) 63%,  rgb(var(--main-console-color)));
 }
 
 .info-strip {
@@ -58,7 +73,7 @@ div {
 }
 
 #header-strip {
-    background-color: rgba(0, 0, 255, 50%);
+    /* background-color: rgba(0, 0, 255, 50%); */
 }
 
 .sub-header {
@@ -66,30 +81,58 @@ div {
     width: 50%;
 }
 
-#hp-strip {
-    background-color: rgba(100, 0, 150, 60%);
+progress {
+    width: 100px;
+    color: #f72626;
+    border-radius: 10px;
+    background-color: #3eff0e;
 }
+progress::-webkit-progress-bar { background: #fff; border-radius: 10px;}
+progress::-webkit-progress-value {background: #0063a6; border-radius: 10px;}
 
 #ap-strip {
-    background-color: rgba(255, 0, 0, 50%);
+    border: solid 1px;
+    border-style: inset;
+    border-color: rgb(var(--dark-console-color));
+    /* background-color: rgba(255, 0, 0, 50%); */
 }
 
-#advantage {
-    width: 100px;
-    /* height: 20px; */
+.advantage {
+    height: 0;
+    visibility: hidden;
+    /* display: grid; */
+    /* grid-template-rows: 0px 150px; */
     position: relative;
-    top: 80px;
-    margin-left: 340px;
-    background-color: rgb(0, 255, 0);
+    top: -20px;
+    /* left: 0; */
+    left: 390px;
+}
+#upper-adv{
+    position: absolute;
+    width: 390px;
+    height: 20px;
+    top: 1px;
+    margin-left: 0px;
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 60%, rgb(46, 210, 254));
+}
+#lower-adv{
+    position: absolute;
+    width: 390px;
+    height: 20px;
+    top: 84px;
+    margin-left: 0px;
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0) 60%,  rgba(0, 255, 0, 90%));
+
 }
 
 .text-box {
+    margin-top: -16px;
     line-height: 30px;
     text-align: left;
     font-family: "VT323";
     text-shadow: 0 0 3px rgb(150, 196, 153);
     height: 150px;
-    background-color: rgb(21, 20, 26);
+    background-color: rgb(var(--dark-screen-color));
     color: white;
 }
 
@@ -98,7 +141,6 @@ div {
     display: grid;
     grid-template-columns: 70% 30%;
     height: 100px;
-    background-color: rgb(0, 0, 255);
     border-top-left-radius: 10px;
 }
 
@@ -110,24 +152,27 @@ div {
 #actions {
     display: grid;
     grid-template-columns: repeat(6, auto);
-    background-image: linear-gradient(rgb(11, 7, 2), rgb(89, 70, 47), rgb(145, 109, 65));
+    background-image: linear-gradient(rgb(var(--dark-console-color)), rgb(var(--secundary-console-color)), rgb(var(--main-console-color)));
 }
 
-#actions>div {
+.action-button {
     margin-left: 1px;
     margin-top: 6px;
     width: 90px;
     height: 90px;
+    border-style: none;
     border-radius: 50px;
-    /* background-color: #c2c2c2; */
-    /* box-shadow: -10px 5px rgba(93, 65, 29, 20%); */
     background-image: radial-gradient(circle 15px at 70% 25%, #c2c2c2, black);
+}
+
+.action-button:hover {
+    background-image: radial-gradient(circle 15px at 70% 25%, #c2c2c2, rgb(var(--main-console-color)));
 }
 
 .button-image {
     position: relative;
-    left: -1px;
-    bottom: 5px;
+    left: -8px;
+    bottom: 10px;
 }
 
 #offensive-movement {
@@ -161,20 +206,20 @@ div {
 }
 
 #right-bar {
-    background-image: linear-gradient(rgb(145, 109, 65), rgb(89, 70, 47), rgb(11, 7, 2));
+    background-image: linear-gradient(rgb(var(--main-console-color)), rgb(var(--secundary-console-color)), rgb(var(--dark-console-color)));
 }
 
 #right-bar>div {
-    color: rgb(145, 109, 65);
+    color: rgb(var(--main-console-color));
     font-family: "IBM Plex Mono";
     line-height: 28px;
     text-shadow: 2px 2px 4px #000000;
     height: 30px;
     width: 232px;
     border: 1px solid;
-    border-color: rgb(28, 15, 3);
+    border-color: rgb(var(--dark-console-color));
     border-style: inset;
-    background-image: linear-gradient(rgba(145, 109, 65, 10%), rgba(89, 70, 47,  90%), rgba(11, 7, 2, 10%));
+    background-image: linear-gradient(rgba(var(--main-console-color), 10%), rgba(var(--secundary-console-color), 60%), rgba(var(--dark-console-color), 80%));
 }
 
 #right-bar>div>div {
@@ -187,7 +232,16 @@ div {
 
 #foot {
     height: 20px;
-    background-image: linear-gradient(to bottom, black, rgb(21, 20, 26));
+    background-image: linear-gradient(to bottom, black, rgb(var(--dark-screen-color)));
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
+}
+
+#foot > p {
+    text-align: left;
+    margin-top: 0px;
+    margin-left: 30px;
+    color: rgb(var(--main-console-color));
+    font-size: 12px;
+    font-family: "IBM Plex Mono";
 }

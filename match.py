@@ -10,19 +10,19 @@ NO_ACTIONS_YET = [0, 0]
 class Match:
     def __init__(self, players):
         self.players = players
-        self.battle_log = BattleLogger()
-        self.battle_log.set_individual_logs(self.players)
+        self.battle_log = BattleLogger(self.players)
         self.turn_manager = TurnManager(self.battle_log)
 
     def start(self):
         current_state = self.match_state(NO_ACTIONS_YET)
-        self.introduce_match(current_state)
+        self.display_match_start(current_state)
+
         for i in range(MAX_TURNS):
-            how_many_bonus_actions = self.order_by_reflex(current_state)
-            pairs_of_actions = self.request_actions(how_many_bonus_actions)
+            number_of_bonus_actions = self.order_players_by_reflex(current_state)
+            pairs_of_actions = self.request_actions(number_of_bonus_actions)
             for i, pair in enumerate(pairs_of_actions):
-                all_alive = self.no_player_is_dead()
-                if all_alive:
+                everybody_is_alive = self.no_player_is_dead()
+                if everybody_is_alive:
                     current_state['actions'] = pair
                     is_a_new_turn = True if i == 0 else False
                     current_state = self.turn_manager.process_turn(
@@ -30,11 +30,11 @@ class Match:
                                                         new_turn=is_a_new_turn
                                                                     )
                     self.update_players(current_state)
-                    print(self.battle_log.turn_collection[-1].state_after)
-            if not all_alive:
+                    # print(self.battle_log.turn_collection[-1].state_after)
+            if not everybody_is_alive:
                 break
 
-    def introduce_match(self, state):
+    def display_match_start(self, state):
         message = ["The match is about to start...\n\n"]
         for player in state['players']:
             name, data = list(player.items())[0]
@@ -43,7 +43,7 @@ class Match:
         message.append("No one have advantage yet.")
         print("".join(message))
 
-    def order_by_reflex(self, state):
+    def order_players_by_reflex(self, state):
         if self.players[0].reflex != self.players[1].reflex:
             self.players.sort(key=lambda player: player.reflex,
                               reverse=True)
@@ -68,23 +68,22 @@ class Match:
             return
         print("".join(["\n", message, "\nGame over."]))
 
-    def request_actions(self, how_many_bonus_actions):
+    def request_actions(self, number_of_bonus_actions):
         def request(player, bonus=False):
             if bonus:
                 print(f"{player.name} have superior \
 reflexes and can take a bonus action.")
             while True:
                 try:
-                    value = player.take_action()
-                    assert (0 < value < 7)
+                    action_number = player.take_action()
+                    assert (0 < action_number < 7)
                     break
                 except (AssertionError, ValueError):
                     print("Action has to be an integer between 1 and 6.")
-
-            return value
+            return action_number
 
         actions = [[request(player) for player in self.players]]
-        for i in range(how_many_bonus_actions):
+        for _ in range(number_of_bonus_actions):
             actions.append([request(self.players[0], bonus=True), 0])
         return actions
 

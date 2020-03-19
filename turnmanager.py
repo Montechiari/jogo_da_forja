@@ -129,8 +129,8 @@ class TurnManager:
         if new_turn:
             world_state['turn'] += 1
         this_turn = Turn(world_state)
-        self.match_log.add_turn(this_turn)
         world_state = this_turn.calculate_next_state()
+        self.match_log.add_turn(this_turn)
         return world_state
 
     def register_in_log(self):
