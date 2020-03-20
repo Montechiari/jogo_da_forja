@@ -1,4 +1,11 @@
 from copy import deepcopy
+from numpy import floor, log2
+
+
+class DeadPlayerException(Exception):
+    ''' Raised when a player dies. '''
+    def __init___(self, who_died):
+        super(DeadPlayerException, self).__init__(f'{who_died} dies.')
 
 
 class Advantage:
@@ -6,17 +13,24 @@ class Advantage:
         self.who = who
         self.kind = kind
 
-    def __repr__(self):
+    def __str__(self):
         if self.who:
             return f"{self.who.name} has {self.kind} advantage."
         else:
             return "No one has advantage."
 
+    def __repr__(self):
+        return "{'who': %s, 'kind': %s}" % (self.who, self.kind)
+
 
 class Turn:
-    def __init__(self, state_before):
-        self.state_before = state_before
-        self.state_after = deepcopy(state_before)
+    def __init__(self, turn_number, players, advantage):
+        self.turn_number = turn_number
+        self.advantage = advantage
+        self.players = players
+        self.extra_actions = self.order_players_by_reflex()
+        self.state_before = self.write_state_before()
+        self.state_after = deepcopy(self.state_before)
 
     def __repr__(self):
         ACTION_NAMES = ['no action',
@@ -41,51 +55,73 @@ class Turn:
         report.extend([actions_line])
         return "\n".join(report)
 
-    def calculate_next_state(self):
-        what_changes = self.find_turn_effects(
-                            self.state_before["actions"]
-                                              )
-        self.make_changes(what_changes)
+    def order_players_by_reflex(self):
+        if self.players[0].reflex != self.players[1].reflex:
+            self.players.sort(key=lambda player: player.reflex,
+                              reverse=True)
+        # returns how many extra turns there'll be
+        return int(floor(abs(log2(self.players[0].reflex /
+                                  self.players[1].reflex))))
+
+    def write_state_before(self):
+        state = {'turn': self.turn_number,
+                 'players': [eval(str(player)) for player in self.players],
+                 'advantage': eval(repr(self.advantage)),
+                 'bonus actions': self.extra_actions}
+        return state
+
+    def calculate_next_state(self, actions):
+        state_placeholder = deepcopy(self.state_before)
+        for action in actions:
+            what_changes = self.find_turn_effects(action)
+            self.make_changes(state_placeholder, what_changes)
+            dead_player, first_blood = self.someone_dead(state_placeholder)
+            if dead_player:
+                raise DeadPlayerException(first_blood)
+        state_placeholder['turn'] += 1
+        self.state_after = state_placeholder
         return self.state_after
 
-    def make_changes(self, what_changes):
-        for i in range(-1, 1):
-            player = self.state_after['players'][i]
-            name, attributes = list(player.items())[0]
-
-            self.update_advantage(name, what_changes[i][0])
-            damage = self.calculate_damage(name, attributes,
+    def make_changes(self, placeholder, what_changes):
+        for i, player in enumerate(placeholder['players']):
+            self.update_advantage(placeholder, player, what_changes[i][0])
+            damage = self.calculate_damage(placeholder, player,
                                            what_changes[i][1:3])
-            self.inflict_damage(self.state_after['players'][i + 1], damage)
-            self.deduce_reflex(name, player, what_changes[i][3])
+            self.inflict_damage(placeholder['players'][i - 1], damage)
+            self.deduce_reflex(player, what_changes[i][3])
 
-    def update_advantage(self, name, adv_instruction):
+    def update_advantage(self, placeholder, player, adv_instruction):
         if adv_instruction:
-            self.state_after["advantage"] = {"who": name,
-                                             "kind": adv_instruction}
+            placeholder["advantage"] = {"who": player['name'],
+                                        "kind": adv_instruction}
 
-    def calculate_damage(self, name, attributes, dmg_instruction):
+    def calculate_damage(self, placeholder, player, dmg_instruction):
         advantage = {"offensive": 2,
                      "defensive": 0.5,
                      None: 1}
         modifyer = dmg_instruction[0]
         if modifyer:
-            dmg = attributes['weapon'][dmg_instruction[1]]
-            if self.has_advantage(name):
-                modifyer *= advantage[self.state_after['advantage']['kind']]
+            dmg = player['weapon'][dmg_instruction[1]]
+            if self.has_advantage(player['name']):
+                modifyer *= advantage[placeholder['advantage']['kind']]
             return modifyer * dmg
         else:
             return 0
 
     def inflict_damage(self, player, damage):
-        name, _ = list(player.items())[0]
-        new_health = player[name]['health'] - damage
-        player[name]['health'] = new_health if new_health > 0 else 0
+        new_health = player['health'] - damage
+        player['health'] = new_health if new_health > 0 else 0
 
-    def deduce_reflex(self, name, player, how_much):
-        new_reflex = player[name]['reflex'] + how_much
-        player[name]['reflex'] = new_reflex if new_reflex > 0 else 1
+    def deduce_reflex(self, player, how_much):
+        new_reflex = player['reflex'] + how_much
+        player['reflex'] = new_reflex if new_reflex > 0 else 1
         return new_reflex
+
+    def someone_dead(self, state):
+        for player in state['players']:
+            if player['health'] == 0:
+                return True, player['name']
+        return False, None
 
     def has_advantage(self, name):
         return self.state_after['advantage']['who'] == name
@@ -121,15 +157,29 @@ class Turn:
 
 class TurnManager:
     def __init__(self, match_log):
+        self.turn_collection = []
         self.advantage = Advantage()
         self.match_log = match_log
 
+    def new_turn(self, players):
+        new_turn = Turn(len(self.turn_collection), players, self.advantage)
+        self.turn_collection.append(new_turn)
+        return new_turn.state_before
+
+    def next_state(self, actions):
+        return self.current_turn().calculate_next_state(actions)
+
+    def current_turn(self):
+        return self.turn_collection[-1]
+
     def process_turn(self, world_state, new_turn):
         world_state = deepcopy(world_state)
+        # print(world_state)
         if new_turn:
             world_state['turn'] += 1
         this_turn = Turn(world_state)
         world_state = this_turn.calculate_next_state()
+        # print(world_state)
         self.match_log.add_turn(this_turn)
         return world_state
 

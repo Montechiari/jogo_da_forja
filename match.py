@@ -1,4 +1,4 @@
-from turnmanager import TurnManager
+from turnmanager import TurnManager, DeadPlayerException
 from battle_log import BattleLogger
 from numpy import floor, log2
 
@@ -11,27 +11,24 @@ class Match:
     def __init__(self, players):
         self.players = players
         self.battle_log = BattleLogger(self.players)
-        self.turn_manager = TurnManager(self.battle_log)
+        self.turns = TurnManager(self.battle_log)
 
     def start(self):
-        current_state = self.match_state(NO_ACTIONS_YET)
-        self.display_match_start(current_state)
-
         for i in range(MAX_TURNS):
-            number_of_bonus_actions = self.order_players_by_reflex(current_state)
-            pairs_of_actions = self.request_actions(number_of_bonus_actions)
-            for i, pair in enumerate(pairs_of_actions):
-                everybody_is_alive = self.no_player_is_dead()
-                if everybody_is_alive:
-                    current_state['actions'] = pair
-                    is_a_new_turn = True if i == 0 else False
-                    current_state = self.turn_manager.process_turn(
-                                                        current_state,
-                                                        new_turn=is_a_new_turn
-                                                                    )
-                    self.update_players(current_state)
-                    # print(self.battle_log.turn_collection[-1].state_after)
-            if not everybody_is_alive:
+            try:
+                current_state = self.turns.new_turn(self.players)
+
+                self.print_current_state(current_state)
+
+                actions = self.request_actions(current_state)
+                effects_message = self.turns.next_state(actions)
+                print('actions: ', actions)
+
+                self.print_turn_effects(effects_message)
+                print('\n')
+                self.update_players(effects_message)
+            except DeadPlayerException as person:
+                print(f'\n{person} dies.\n\n-- Game Over --\n')
                 break
 
     def display_match_start(self, state):
@@ -68,7 +65,7 @@ class Match:
             return
         print("".join(["\n", message, "\nGame over."]))
 
-    def request_actions(self, number_of_bonus_actions):
+    def request_actions(self, state):
         def request(player, bonus=False):
             if bonus:
                 print(f"{player.name} have superior \
@@ -82,16 +79,17 @@ reflexes and can take a bonus action.")
                     print("Action has to be an integer between 1 and 6.")
             return action_number
 
+        number_of_bonus_actions = state['bonus actions']
         actions = [[request(player) for player in self.players]]
         for _ in range(number_of_bonus_actions):
             actions.append([request(self.players[0], bonus=True), 0])
         return actions
 
     def update_players(self, state):
-        for player in self.players:
-            for new_attributes in state['players']:
-                if player.name in new_attributes:
-                    player.update(new_attributes[player.name])
+        for i, player in enumerate(self.players):
+            attributes = state['players'][i]
+            player.health = attributes['health']
+            player.reflex = attributes['reflex']
 
     def match_state(self, actions, state=None):
         player_list = [{player.name: eval(str(player))}
@@ -105,3 +103,9 @@ reflexes and can take a bonus action.")
             state['players'] = player_list
             state["actions"] = actions
             return state
+
+    def print_current_state(self, state):
+        print(state)
+
+    def print_turn_effects(self, state):
+        print(state)

@@ -26,7 +26,8 @@ class Combatent:
     def __str__(self):
         weapon = "".join(['{', str(self.weapon), '}'])
         return ", ".join([
-                          "{'health': %d" % self.health,
+                          "{'name': '%s'" % self.name,
+                          "'health': %d" % self.health,
                           "'reflex': %d" % self.reflex,
                           "'weapon': %s}" % weapon])
 
