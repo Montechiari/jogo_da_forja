@@ -156,10 +156,9 @@ class Turn:
 
 
 class TurnManager:
-    def __init__(self, match_log):
+    def __init__(self):
         self.turn_collection = []
         self.advantage = {'who': None, 'kind': None}
-        self.match_log = match_log
 
     def new_turn(self, players):
         new_turn = Turn(len(self.turn_collection), players, self.advantage)

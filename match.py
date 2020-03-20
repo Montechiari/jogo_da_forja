@@ -1,5 +1,4 @@
 from turnmanager import TurnManager, DeadPlayerException
-from battle_log import BattleLogger
 
 
 MAX_TURNS = 20
@@ -9,8 +8,7 @@ NO_ACTIONS_YET = [0, 0]
 class Match:
     def __init__(self, players):
         self.players = players
-        self.battle_log = BattleLogger(self.players)
-        self.turns = TurnManager(self.battle_log)
+        self.turns = TurnManager()
 
     def start(self, verbose=False):
         for i in range(MAX_TURNS):
@@ -19,36 +17,12 @@ class Match:
                 self.display_message(verbose, current_state, 'pre_action')
                 actions = self.request_actions(current_state)
                 self.action_message(actions, current_state)
-                effects_message = self.turns.next_state(actions)
+                new_state = self.turns.next_state(actions)
+                self.update_players(new_state)
 
-                self.update_players(effects_message)
             except DeadPlayerException as person:
                 print(f'{person} dies.\n\n-- Game Over --\n')
                 break
-
-    def display_match_start(self, state):
-        message = ["The match is about to start...\n\n"]
-        for player in state['players']:
-            name, data = list(player.items())[0]
-            message.append(f"{name}: {data['health']}hp | \
-{data['reflex']}rx | weapon: {data['weapon']}\n")
-        message.append("No one have advantage yet.")
-        print("".join(message))
-
-    def no_player_is_dead(self):
-        dead_count = [f"{player.name} is dead."
-                      for player in self.players if player.health <= 0]
-        self.match_over_message(dead_count)
-        return False if len(dead_count) > 0 else True
-
-    def match_over_message(self, dead_count):
-        if len(dead_count) > 1:
-            message = "Both combatents are dead.\n"
-        elif len(dead_count) == 1:
-            message = dead_count[0]
-        else:
-            return
-        print("".join(["\n", message, "\nGame over."]))
 
     def request_actions(self, state):
         def request(player, bonus=False):
@@ -75,19 +49,6 @@ reflexes and can take a bonus action.")
             attributes = state['players'][i]
             player.health = attributes['health']
             player.reflex = attributes['reflex']
-
-    def match_state(self, actions, state=None):
-        player_list = [{player.name: eval(str(player))}
-                       for player in self.players]
-        if not state:
-            advantage = {"who": None,
-                         "kind": None}
-            return {"turn": 0, "players": player_list,
-                    "advantage": advantage, "actions": actions}
-        else:
-            state['players'] = player_list
-            state["actions"] = actions
-            return state
 
     def display_message(self, verbose, state, kind):
         if verbose:
