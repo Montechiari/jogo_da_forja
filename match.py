@@ -1,6 +1,5 @@
 from turnmanager import TurnManager, DeadPlayerException
 from battle_log import BattleLogger
-from numpy import floor, log2
 
 
 MAX_TURNS = 20
@@ -13,22 +12,18 @@ class Match:
         self.battle_log = BattleLogger(self.players)
         self.turns = TurnManager(self.battle_log)
 
-    def start(self):
+    def start(self, verbose=False):
         for i in range(MAX_TURNS):
             try:
                 current_state = self.turns.new_turn(self.players)
-
-                self.print_current_state(current_state)
-
+                self.display_message(verbose, current_state, 'pre_action')
                 actions = self.request_actions(current_state)
+                self.action_message(actions, current_state)
                 effects_message = self.turns.next_state(actions)
-                print('actions: ', actions)
 
-                self.print_turn_effects(effects_message)
-                print('\n')
                 self.update_players(effects_message)
             except DeadPlayerException as person:
-                print(f'\n{person} dies.\n\n-- Game Over --\n')
+                print(f'{person} dies.\n\n-- Game Over --\n')
                 break
 
     def display_match_start(self, state):
@@ -39,16 +34,6 @@ class Match:
 {data['reflex']}rx | weapon: {data['weapon']}\n")
         message.append("No one have advantage yet.")
         print("".join(message))
-
-    def order_players_by_reflex(self, state):
-        if self.players[0].reflex != self.players[1].reflex:
-            self.players.sort(key=lambda player: player.reflex,
-                              reverse=True)
-        state["players"] = [{player.name: eval(str(player))}
-                            for player in self.players]
-        # returns how many extra turns there'll be
-        return int(floor(abs(log2(self.players[0].reflex /
-                                  self.players[1].reflex))))
 
     def no_player_is_dead(self):
         dead_count = [f"{player.name} is dead."
@@ -104,8 +89,44 @@ reflexes and can take a bonus action.")
             state["actions"] = actions
             return state
 
-    def print_current_state(self, state):
-        print(state)
+    def display_message(self, verbose, state, kind):
+        if verbose:
+            message_callbacks = {
+                                 'pre_action': self.pre_action_message,
+                                 'action': self.action_message,
+                                 'post_action': self.post_action_message
+                                 }
+            print(message_callbacks[kind](state))
 
-    def print_turn_effects(self, state):
-        print(state)
+    def pre_action_message(self, state):
+        message = ['-- Turn {} --'.format(state['turn'])]
+        message.extend(["{name1}, w({slash1}sl/{thrust1}th):\
+ {hp1}hp, {rx1}rx.".format(
+            name1=player['name'],
+            slash1=player['weapon']['slash'],
+            thrust1=player['weapon']['thrust'],
+            hp1=player['health'], rx1=player['reflex'])
+                  for player in state['players']])
+        message.append('{}\n'.format(self.advantage_message(state)))
+        return '\n'.join(message)
+
+    def advantage_message(self, state):
+        advantage = state['advantage']
+        if advantage['who']:
+            return f"{advantage['who']} has {advantage['kind']} advantage."
+        else:
+            return "No one has advantage."
+
+    def action_message(self, actions, state):
+        ACTION_NAMES = ['no action',
+                        'offensive movement', 'defensive movement',
+                        'slash attack', 'thrust attack',
+                        'slash defense', 'thrust defense']
+        for pair in actions:
+            for i, action in enumerate(pair):
+                print(f"{state['players'][i]['name']} performs",
+                      ACTION_NAMES[action])
+            print('\n')
+
+    def post_action_message(self, state):
+        pass

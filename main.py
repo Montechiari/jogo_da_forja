@@ -34,4 +34,4 @@ if __name__ == '__main__':
 
     players = instantiate_players(args.game_mode)
     match = Match(players)
-    match.start()
+    match.start(verbose=True)

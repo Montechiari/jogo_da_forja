@@ -15,7 +15,7 @@ class Advantage:
 
     def __str__(self):
         if self.who:
-            return f"{self.who.name} has {self.kind} advantage."
+            return f"{self.who} has {self.kind} advantage."
         else:
             return "No one has advantage."
 
@@ -66,7 +66,7 @@ class Turn:
     def write_state_before(self):
         state = {'turn': self.turn_number,
                  'players': [eval(str(player)) for player in self.players],
-                 'advantage': eval(repr(self.advantage)),
+                 'advantage': self.advantage,
                  'bonus actions': self.extra_actions}
         return state
 
@@ -158,7 +158,7 @@ class Turn:
 class TurnManager:
     def __init__(self, match_log):
         self.turn_collection = []
-        self.advantage = Advantage()
+        self.advantage = {'who': None, 'kind': None}
         self.match_log = match_log
 
     def new_turn(self, players):
@@ -167,7 +167,10 @@ class TurnManager:
         return new_turn.state_before
 
     def next_state(self, actions):
-        return self.current_turn().calculate_next_state(actions)
+        this_turn = self.current_turn()
+        next_state = this_turn.calculate_next_state(actions)
+        self.advantage = next_state['advantage']
+        return next_state
 
     def current_turn(self):
         return self.turn_collection[-1]
