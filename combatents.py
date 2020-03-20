@@ -34,10 +34,6 @@ class Combatent:
     def __repr__(self):
         return [self.name, self.health, self.reflex, repr(self.weapon)]
 
-    # default
-    def take_action(self):
-        return "Not implemented"
-
     def generate_stats(self):
         def random_stats(max, min):
             points_to_distribute = max - (2 * min)
@@ -59,13 +55,12 @@ class HumanPlayer(Combatent):
         Combatent.__init__(self, name)
 
     def take_action(self):
-        self.last_action = input(f"What action does {self.name} take?\
- (between 1 and 6)\n")
+        self.last_action = input(f"What action does {self.name} take?\n")
         self.last_action = int(self.last_action)
         return self.last_action
 
 
-class AIPlayer(Combatent):
+class AiPlayer(Combatent):
     def __init__(self, name):
         Combatent.__init__(self, name)
 

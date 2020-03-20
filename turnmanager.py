@@ -8,52 +8,34 @@ class DeadPlayerException(Exception):
         super(DeadPlayerException, self).__init__(f'{who_died} dies.')
 
 
-class Advantage:
-    def __init__(self, who=None, kind=None):
-        self.who = who
-        self.kind = kind
+class TurnManager:
+    def __init__(self):
+        self.turn_collection = []
+        self.advantage = {'who': None, 'kind': None}
 
-    def __str__(self):
-        if self.who:
-            return f"{self.who} has {self.kind} advantage."
-        else:
-            return "No one has advantage."
+    def new_turn(self, players):
+        new_turn = Turn(len(self.turn_collection), players, self.advantage)
+        self.turn_collection.append(new_turn)
+        return new_turn.state_before
 
-    def __repr__(self):
-        return "{'who': %s, 'kind': %s}" % (self.who, self.kind)
+    def next_state(self, actions):
+        this_turn = self.current_turn()
+        next_state = this_turn.calculate_next_state(actions)
+        self.advantage = next_state['advantage']
+        return next_state
+
+    def current_turn(self):
+        return self.turn_collection[-1]
 
 
 class Turn:
     def __init__(self, turn_number, players, advantage):
         self.turn_number = turn_number
-        self.advantage = advantage
         self.players = players
+        self.advantage = advantage
         self.extra_actions = self.order_players_by_reflex()
         self.state_before = self.write_state_before()
         self.state_after = deepcopy(self.state_before)
-
-    def __repr__(self):
-        ACTION_NAMES = ['no action',
-                        'offensive movement', 'defensive movement',
-                        'slash attack', 'thrust attack',
-                        'slash defense', 'thrust defense']
-
-        report = ["Turn: %d" % self.state_before['turn']]
-        actions = self.state_before['actions']
-        actions_line = []
-        punctuation = [", ", "."]
-        for i, player in enumerate(self.state_before['players']):
-            name = list(player.keys())[0]
-            action = ACTION_NAMES[actions[i]]
-            actions_line.append(f"{name} performs {action}")
-            actions_line.append(punctuation[i])
-        actions_line = "".join(actions_line)
-        report.extend([str(player) for player in self.state_before['players']])
-        advantage = self.state_before['advantage']
-        report.extend([f"{advantage['who']} has " +
-                       f"{advantage['kind']} advantage."])
-        report.extend([actions_line])
-        return "\n".join(report)
 
     def order_players_by_reflex(self):
         if self.players[0].reflex != self.players[1].reflex:
@@ -153,42 +135,3 @@ class Turn:
                 return [CODE_OF_EFFECTS[str(action1)], [None, 0, None, 0]]
         except TypeError:
             print(actions)
-
-
-class TurnManager:
-    def __init__(self):
-        self.turn_collection = []
-        self.advantage = {'who': None, 'kind': None}
-
-    def new_turn(self, players):
-        new_turn = Turn(len(self.turn_collection), players, self.advantage)
-        self.turn_collection.append(new_turn)
-        return new_turn.state_before
-
-    def next_state(self, actions):
-        this_turn = self.current_turn()
-        next_state = this_turn.calculate_next_state(actions)
-        self.advantage = next_state['advantage']
-        return next_state
-
-    def current_turn(self):
-        return self.turn_collection[-1]
-
-    def process_turn(self, world_state, new_turn):
-        world_state = deepcopy(world_state)
-        # print(world_state)
-        if new_turn:
-            world_state['turn'] += 1
-        this_turn = Turn(world_state)
-        world_state = this_turn.calculate_next_state()
-        # print(world_state)
-        self.match_log.add_turn(this_turn)
-        return world_state
-
-    def register_in_log(self):
-        for player in self.players:
-            self.match_log[player.name].append("log")
-
-    def flavor_text(self):
-        # TODO: text parser module
-        return "Flavor text not implemented."

@@ -2,7 +2,6 @@ from turnmanager import TurnManager, DeadPlayerException
 
 
 MAX_TURNS = 20
-NO_ACTIONS_YET = [0, 0]
 
 
 class Match:
@@ -55,7 +54,6 @@ reflexes and can take a bonus action.")
             message_callbacks = {
                                  'pre_action': self.pre_action_message,
                                  'action': self.action_message,
-                                 'post_action': self.post_action_message
                                  }
             print(message_callbacks[kind](state))
 
@@ -88,6 +86,3 @@ reflexes and can take a bonus action.")
                 print(f"{state['players'][i]['name']} performs",
                       ACTION_NAMES[action])
             print('\n')
-
-    def post_action_message(self, state):
-        pass
