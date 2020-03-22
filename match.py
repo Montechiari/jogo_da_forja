@@ -8,6 +8,7 @@ class Match:
     def __init__(self, players):
         self.players = players
         self.turns = TurnManager()
+        self.winner = None
 
     def start(self, verbose=False):
         for i in range(MAX_TURNS):
@@ -20,7 +21,10 @@ class Match:
                 self.update_players(new_state)
 
             except DeadPlayerException as person:
-                print(f'{person} dies.\n\n-- Game Over --\n')
+                print(f'{person} died.')
+                self.winner = self.get_opponent_of(person)
+                print(self.winner,
+                      "wins!\n\n-- Game Over --")
                 break
 
     def request_actions(self, state):
@@ -86,3 +90,11 @@ reflexes and can take a bonus action.")
                 print(f"{state['players'][i]['name']} performs",
                       ACTION_NAMES[action])
             print('\n')
+
+    def get_opponent_of(self, player_name):
+        try:
+            for i, player in enumerate(self.players):
+                if player.name is str(player_name):
+                    return player.opponent.name
+        except (AttributeError, TypeError):
+            raise AssertionError('Input variables should be strings')

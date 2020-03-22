@@ -27,6 +27,12 @@ class TurnManager:
     def current_turn(self):
         return self.turn_collection[-1]
 
+    def starting_turn(self):
+        return self.turn_collection[0]
+
+    def dump_like_vector(self):
+        pass
+
 
 class Turn:
     def __init__(self, turn_number, players, advantage):
@@ -59,6 +65,7 @@ class Turn:
             self.make_changes(state_placeholder, what_changes)
             dead_player, first_blood = self.someone_dead(state_placeholder)
             if dead_player:
+                self.state_after = state_placeholder
                 raise DeadPlayerException(first_blood)
         state_placeholder['turn'] += 1
         self.state_after = state_placeholder
