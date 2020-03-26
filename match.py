@@ -21,11 +21,17 @@ class Match:
                 self.update_players(new_state)
 
             except DeadPlayerException as person:
+                final_state = self.turns.current_turn().state_after
+                self.display_message(verbose, final_state, 'pre_action')
                 print(f'{person} died.')
                 self.winner = self.get_opponent_of(person)
                 print(self.winner,
                       "wins!\n\n-- Game Over --")
                 break
+        for player in self.players:
+            if player.name == self.winner:
+                for line in self.turns.dump_like_vector(player):
+                    print(line)
 
     def request_actions(self, state):
         def request(player, bonus=False):

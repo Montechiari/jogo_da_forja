@@ -22,6 +22,8 @@ Todas as combinações de ações resultam em alterações em *vantagem*, *saude
 - razão entre saude do combatente e do adversário              |
 - razão entre prontidão do combatente e do adversário ---------+
 - número de turno ---------------------------------------------+
+- quantidade de acoes bonus
+- numero de acoes bonus
 - porcentagem atual de saúde                                   |
 - porcentagem atual de prontidão                               | Estado atual
 - porcentagem saúde adversário                                 |

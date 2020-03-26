@@ -8,6 +8,101 @@ class DeadPlayerException(Exception):
         super(DeadPlayerException, self).__init__(f'{who_died} dies.')
 
 
+class TurnVector:
+    def __init__(self, player, manager):
+        self.player = player
+        self.manager = manager
+        self.starting_state = self.manager.starting_turn().state_before
+        # for line in self.assemble_vector():
+        #     print(line)
+
+    def assemble_vector(self):
+        previous_action = [0, 0]
+        out = []
+        permanent_info = self.get_permanent_info()
+        for turn in self.manager.turn_collection:
+            entire_turn = deepcopy(permanent_info[6:])
+            turn_info = self.get_current_info(permanent_info, turn.turn_number)
+            turn_info.append(turn.state_before['bonus actions'])
+            entire_turn.extend(turn_info)
+            for i, action_pair in enumerate(turn.actions):
+                turn_with_action = deepcopy(entire_turn)
+                turn_with_action.append(i)
+                turn_with_action.extend([action / 6
+                                         for action in previous_action])
+                previous_action = [action_pair[permanent_info[0]],
+                                   action_pair[permanent_info[1]]]
+                out.append((turn_with_action, previous_action[0]))
+
+        return out
+
+    def get_permanent_info(self):
+        players_state = self.starting_state['players']
+        my_index = self.find_self_idx(players_state)
+        opn_index = (my_index + 1) % 2
+        fields = {'my index': my_index, 'opponents index': opn_index,
+                  'my starting health': players_state[my_index]['health'],
+                  'my starting reflex': players_state[my_index]['reflex'],
+                  'opn starting_health': players_state[opn_index]['health'],
+                  'opn starting reflex': players_state[opn_index]['reflex'],
+                  'health vs reflex': (players_state[my_index]['health'] /
+                                       players_state[my_index]['reflex']),
+                  'my health vs opn': (players_state[my_index]['health'] /
+                                       players_state[opn_index]['health']),
+                  'my reflex vs opn': (players_state[my_index]['reflex'] /
+                                       players_state[opn_index]['reflex']),
+                  'weapon ratio': (players_state[my_index]['weapon']['slash'] /
+                                   players_state[my_index]['weapon']['thrust']
+                                   ),
+                  'slash vs': (players_state[my_index]['weapon']['slash'] /
+                               players_state[opn_index]['weapon']['slash']),
+                  'thrust vs': (players_state[my_index]['weapon']['thrust'] /
+                                players_state[opn_index]['weapon']['thrust'])
+                  }
+        _, out = zip(*[item for item in fields.items()])
+        return list(out)
+
+    def get_current_info(self, perm_info, turn_number):
+        turn_state = self.manager.turn_collection[turn_number].state_before
+        perm_info[0] = self.find_self_idx(turn_state['players'])
+        perm_info[1] = (perm_info[0] + 1) % 2
+        adv_vect = self.get_advantage_vector(turn_state)
+        info = {'turn number': turn_number / 20,
+                'my hp pct': (turn_state['players'][perm_info[0]]['health'] /
+                              perm_info[2]),
+                'my rp pct': (turn_state['players'][perm_info[0]]['reflex'] /
+                              perm_info[3]),
+                'opn hp pct': (turn_state['players'][perm_info[1]]['health'] /
+                               perm_info[4]),
+                'opn rp pct': (turn_state['players'][perm_info[1]]['reflex'] /
+                               perm_info[5]),
+                'advantage who': adv_vect[0],
+                'advantage kind': adv_vect[1]}
+        _, out = zip(*[item for item in info.items()])
+        return list(out)
+
+    def get_advantage_vector(self, state):
+        players = state['players']
+        my_idx = self.find_self_idx(players)
+        names = [players[my_idx]['name'],
+                 players[(my_idx + 1) % 2]['name'],
+                 None]
+        who_values = [1, 0, 0.5]
+        who_bit = {names[i]: who_values[i] for i in range(len(names))}
+        kind_bit = {'offensive': 1, 'defensive': 0, None: 0.5}
+        adv = state['advantage']
+        return [who_bit[adv['who']], kind_bit[adv['kind']]]
+
+    def get_action_vector(self, prefix, state, actions):
+        pass
+
+    def find_self_idx(self, player_dicts):
+        if player_dicts[0]['name'] == self.player.name:
+            return 0
+        else:
+            return 1
+
+
 class TurnManager:
     def __init__(self):
         self.turn_collection = []
@@ -30,8 +125,9 @@ class TurnManager:
     def starting_turn(self):
         return self.turn_collection[0]
 
-    def dump_like_vector(self):
-        pass
+    def dump_like_vector(self, player):
+        turnvect = TurnVector(player, self)
+        return turnvect.assemble_vector()
 
 
 class Turn:
@@ -59,6 +155,7 @@ class Turn:
         return state
 
     def calculate_next_state(self, actions):
+        self.actions = actions
         state_placeholder = deepcopy(self.state_before)
         for action in actions:
             what_changes = self.find_turn_effects(action)
