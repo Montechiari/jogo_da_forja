@@ -22,15 +22,15 @@ Todas as combinações de ações resultam em alterações em *vantagem*, *saude
 - razão entre saude do combatente e do adversário              |
 - razão entre prontidão do combatente e do adversário ---------+
 - número de turno ---------------------------------------------+
-- quantidade de acoes bonus
-- numero de acoes bonus
 - porcentagem atual de saúde                                   |
 - porcentagem atual de prontidão                               | Estado atual
 - porcentagem saúde adversário                                 |
 - porcentagem prontidão adversário                             |
 - combatente tem vantagem? (binário)                           |
 - qual vantagem? (binário) ------------------------------------+
-- última ação -------------------------------------------------+ Histórico
+- quantidade de acoes bonus-------------------------------+ Histórico
+- numero de acoes bonus
+- última ação
 - última ação do adversário                                    |
 
 # sobre o projeto

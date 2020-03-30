@@ -7,6 +7,7 @@ MAX_TURNS = 20
 class Match:
     def __init__(self, players):
         self.players = players
+        self.relate_opponents(self.players)
         self.turns = TurnManager()
         self.winner = None
 
@@ -15,27 +16,28 @@ class Match:
             try:
                 current_state = self.turns.new_turn(self.players)
                 self.display_message(verbose, current_state, 'pre_action')
-                actions = self.request_actions(current_state)
-                self.action_message(actions, current_state)
+                actions = self.request_actions(current_state, verbose)
+                # self.action_message(actions, current_state)
                 new_state = self.turns.next_state(actions)
                 self.update_players(new_state)
 
             except DeadPlayerException as person:
                 final_state = self.turns.current_turn().state_after
                 self.display_message(verbose, final_state, 'pre_action')
-                print(f'{person} died.')
+                # print(f'{person} died.')
                 self.winner = self.get_opponent_of(person)
-                print(self.winner,
-                      "wins!\n\n-- Game Over --")
+                # print(self.winner,
+                #       "wins!\n\n-- Game Over --")
                 break
-        for player in self.players:
-            if player.name == self.winner:
-                for line in self.turns.dump_like_vector(player):
-                    print(line)
+        self.end_by_turn_limit()
+        # for player in self.players:
+        #     if player.name == self.winner:
+        #         for line in self.turns.dump_like_vector(player):
+        #             print(line)
 
-    def request_actions(self, state):
+    def request_actions(self, state, verbose):
         def request(player, bonus=False):
-            if bonus:
+            if bonus and verbose:
                 print(f"{player.name} have superior \
 reflexes and can take a bonus action.")
             while True:
@@ -104,3 +106,19 @@ reflexes and can take a bonus action.")
                     return player.opponent.name
         except (AttributeError, TypeError):
             raise AssertionError('Input variables should be strings')
+
+    def relate_opponents(self, players):
+        for i in range(-1, len(players) - 1):
+            players[i].opponent = players[i + 1]
+
+    def get_winner(self):
+        for player in self.players:
+            if player.name == self.winner:
+                return player
+        raise AssertionError
+
+    def end_by_turn_limit(self):
+        sorted_players = sorted(self.players,
+                                key=lambda player: player.health,
+                                reverse=True)
+        self.winner = sorted_players[0].name

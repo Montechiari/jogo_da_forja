@@ -32,7 +32,8 @@ class TurnVector:
                                          for action in previous_action])
                 previous_action = [action_pair[permanent_info[0]],
                                    action_pair[permanent_info[1]]]
-                out.append((turn_with_action, previous_action[0]))
+                out.append((turn_with_action,
+                            self.spit_one_off(7, previous_action[0])))
 
         return out
 
@@ -101,6 +102,11 @@ class TurnVector:
             return 0
         else:
             return 1
+
+    def spit_one_off(self, size, number):
+        out_array = [0 for _ in range(size)]
+        out_array[number] = 1
+        return out_array
 
 
 class TurnManager:
