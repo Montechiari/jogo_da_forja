@@ -13,10 +13,10 @@ class TurnVector:
         self.player = player
         self.manager = manager
         self.starting_state = self.manager.starting_turn().state_before
-        # for line in self.assemble_vector():
+        # for line in self.match_vectors():
         #     print(line)
 
-    def assemble_vector(self):
+    def match_vectors(self):
         previous_action = [0, 0]
         out = []
         permanent_info = self.get_permanent_info()
@@ -36,6 +36,23 @@ class TurnVector:
                             self.spit_one_off(7, previous_action[0])))
 
         return out
+    #
+    # def assemble_vector(self, turn):
+    #     previous_action = [0, 0]
+    #     permanent_info = self.get_permanent_info()
+    #     entire_turn = deepcopy(permanent_info[6:])
+    #     turn_info = self.get_current_info(permanent_info, turn.turn_number)
+    #     turn_info.append(turn.state_before['bonus actions'])
+    #     entire_turn.extend(turn_info)
+    #     for i, action_pair in enumerate(turn.actions):
+    #         turn_with_action = deepcopy(entire_turn)
+    #         turn_with_action.append(i)
+    #         turn_with_action.extend([action / 6
+    #                                  for action in previous_action])
+    #         previous_action = [action_pair[permanent_info[0]],
+    #                            action_pair[permanent_info[1]]]
+    #         out.append((turn_with_action,
+    #                     self.spit_one_off(7, previous_action[0])))
 
     def get_permanent_info(self):
         players_state = self.starting_state['players']
@@ -133,7 +150,10 @@ class TurnManager:
 
     def dump_like_vector(self, player):
         turnvect = TurnVector(player, self)
-        return turnvect.assemble_vector()
+        return turnvect.match_vectors()
+
+    def get_current_vector(self):
+        pass
 
 
 class Turn:
@@ -144,6 +164,7 @@ class Turn:
         self.extra_actions = self.order_players_by_reflex()
         self.state_before = self.write_state_before()
         self.state_after = deepcopy(self.state_before)
+        self.actions = [[0, 0]]
 
     def order_players_by_reflex(self):
         if self.players[0].reflex != self.players[1].reflex:

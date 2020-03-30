@@ -1,4 +1,5 @@
 from turnmanager import TurnManager, DeadPlayerException
+from combatents import AiPlayer
 
 
 MAX_TURNS = 20
@@ -17,7 +18,8 @@ class Match:
                 current_state = self.turns.new_turn(self.players)
                 self.display_message(verbose, current_state, 'pre_action')
                 actions = self.request_actions(current_state, verbose)
-                # self.action_message(actions, current_state)
+                if verbose:
+                    self.action_message(actions, current_state)
                 new_state = self.turns.next_state(actions)
                 self.update_players(new_state)
 
@@ -42,11 +44,17 @@ class Match:
 reflexes and can take a bonus action.")
             while True:
                 try:
-                    action_number = player.take_action()
+                    if isinstance(player, AiPlayer):
+                        action_number = player.take_action(
+                                            self.turn_vector(player)
+                                                            )
+                    else:
+                        action_number = player.take_action()
                     assert (0 < action_number < 7)
                     break
-                except (AssertionError, ValueError):
+                except (AssertionError, ValueError) as e:
                     print("Action has to be an integer between 1 and 6.")
+                    print(e)
             return action_number
 
         number_of_bonus_actions = state['bonus actions']
@@ -115,6 +123,7 @@ reflexes and can take a bonus action.")
         for player in self.players:
             if player.name == self.winner:
                 return player
+        print('NO WINNER', len(self.turns.turn_collection))
         raise AssertionError
 
     def end_by_turn_limit(self):
@@ -122,3 +131,8 @@ reflexes and can take a bonus action.")
                                 key=lambda player: player.health,
                                 reverse=True)
         self.winner = sorted_players[0].name
+
+    def turn_vector(self, player):
+        big_log = self.turns.dump_like_vector(player)
+        vectors, action = zip(*big_log)
+        return vectors[-1]

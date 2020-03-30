@@ -1,4 +1,4 @@
-from combatents import DummyPlayer, HumanPlayer
+from combatents import DummyPlayer, HumanPlayer, AiPlayer
 from match import Match
 import argparse
 
@@ -8,14 +8,17 @@ NAMES_FOR_TESTING = ["Carlos", "Emar"]
 
 def instantiate_players(mode):
     full_mode_name = {'dd': 'two dummies',
-                      'hd': 'human vs dummy'}
+                      'hd': 'human vs dummy',
+                      'ai': 'ai vs dummy'}
     print("Game mode:", full_mode_name[mode], '\n')
     instructions_for_creation = {'dd': [DummyPlayer(name)
                                         for name in NAMES_FOR_TESTING],
                                  'hd': [combatent(NAMES_FOR_TESTING[i])
                                         for i, combatent in enumerate(
                                     [HumanPlayer, DummyPlayer])
-                                        ]}
+                                        ],
+                                 'ai': [AiPlayer(NAMES_FOR_TESTING[0]),
+                                        AiPlayer(NAMES_FOR_TESTING[1])]}
 
     pair_of_players = instructions_for_creation[mode]
     relate_opponents(pair_of_players)
