@@ -1,4 +1,4 @@
-from numpy.random import randint
+from numpy.random import randint, choice
 from numpy import array
 
 HEALTH_MAX_MIN = [25, 8]
@@ -62,18 +62,15 @@ class HumanPlayer(Combatent):
 
 
 class AiPlayer(Combatent):
-    def __init__(self, name):
+    def __init__(self, name, model):
         Combatent.__init__(self, name)
-        from tensorflow.keras.models import model_from_json
-        with open(f'./NN_models/{name}.json', 'r') as f:
-            self.model = model_from_json(f.read())
-        self.model.load_weights(f'./NN_models/{name}.h5')
+        self.model = model
 
     def take_action(self, vector):
         vector = array(vector)
         vector.shape = (1, 17)
-        prediction = list(self.model.predict_on_batch(vector))
-        value = list(prediction[0]).index(max(prediction[0]))
+        prediction = self.model.predict_on_batch(vector)
+        value = choice([i for i in range(7)], p=prediction[0])
         return value
 
 

@@ -1,6 +1,7 @@
 from combatents import DummyPlayer, HumanPlayer, AiPlayer
 from match import Match
 import argparse
+from training import load_model
 
 
 NAMES_FOR_TESTING = ["Carlos", "Emar"]
@@ -17,8 +18,10 @@ def instantiate_players(mode):
                                         for i, combatent in enumerate(
                                     [HumanPlayer, DummyPlayer])
                                         ],
-                                 'ai': [AiPlayer(NAMES_FOR_TESTING[0]),
-                                        AiPlayer(NAMES_FOR_TESTING[1])]}
+                                 'ai': [AiPlayer(NAMES_FOR_TESTING[0],
+                                                 load_model(NAMES_FOR_TESTING[0])),
+                                        AiPlayer(NAMES_FOR_TESTING[1],
+                                                 load_model(NAMES_FOR_TESTING[1]))]}
 
     pair_of_players = instructions_for_creation[mode]
     relate_opponents(pair_of_players)

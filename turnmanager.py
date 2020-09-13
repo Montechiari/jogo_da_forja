@@ -214,7 +214,10 @@ class Turn:
                      None: 1}
         modifyer = dmg_instruction[0]
         if modifyer:
-            dmg = player['weapon'][dmg_instruction[1]]
+            if dmg_instruction[1] is None:
+                dmg = 4
+            else:
+                dmg = player['weapon'][dmg_instruction[1]]
             if self.has_advantage(player['name']):
                 modifyer *= advantage[placeholder['advantage']['kind']]
             return modifyer * dmg
@@ -255,7 +258,7 @@ class Turn:
                            "5": [None, 0, None, -1],
                            "6": [None, 0.5, "slash", -1],
                            "7": [None, 0.5, "thrust", -1],
-                           "8": [None, 0, None, 1],
+                           "8": [None, 1, None, 1],
                            "9": [None, 0, None, 0]}
         try:
             action1, action2 = (action - 1 for action in actions)

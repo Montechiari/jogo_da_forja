@@ -1,5 +1,6 @@
 from turnmanager import TurnManager, DeadPlayerException
 from combatents import AiPlayer
+from numpy.random import randint
 
 
 MAX_TURNS = 20
@@ -31,7 +32,8 @@ class Match:
                 # print(self.winner,
                 #       "wins!\n\n-- Game Over --")
                 break
-        self.end_by_turn_limit()
+        # self.evaluate_match_in_respect_to(self.get_winner())
+        # self.end_by_turn_limit()
         # for player in self.players:
         #     if player.name == self.winner:
         #         for line in self.turns.dump_like_vector(player):
@@ -39,10 +41,11 @@ class Match:
 
     def request_actions(self, state, verbose):
         def request(player, bonus=False):
+            fail_safe = 0
             if bonus and verbose:
                 print(f"{player.name} have superior \
 reflexes and can take a bonus action.")
-            while True:
+            while True and fail_safe < 1000:
                 try:
                     if isinstance(player, AiPlayer):
                         action_number = player.take_action(
@@ -53,8 +56,11 @@ reflexes and can take a bonus action.")
                     assert (0 < action_number < 7)
                     break
                 except (AssertionError, ValueError) as e:
+                    fail_safe += 1
                     print("Action has to be an integer between 1 and 6.")
                     print(e)
+                    if fail_safe >= 1000:
+                        action_number = randint(1, 7)
             return action_number
 
         number_of_bonus_actions = state['bonus actions']
@@ -123,8 +129,7 @@ reflexes and can take a bonus action.")
         for player in self.players:
             if player.name == self.winner:
                 return player
-        print('NO WINNER', len(self.turns.turn_collection))
-        raise AssertionError
+        return None
 
     def end_by_turn_limit(self):
         sorted_players = sorted(self.players,
@@ -136,3 +141,12 @@ reflexes and can take a bonus action.")
         big_log = self.turns.dump_like_vector(player)
         vectors, action = zip(*big_log)
         return vectors[-1]
+
+    def evaluate_match_in_respect_to(self, player):
+        last_state = self.turns.turn_collection[-1].state_after
+        duration_factor = 19 - last_state['turn']
+        for individual in last_state['players']:
+            if individual['name'] == player.name:
+                damage_taken = (individual['health'] /
+                                player.starting_health)
+        return duration_factor * damage_taken
