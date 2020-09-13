@@ -1,0 +1,11 @@
+{
+	"estilo": "Torniquete",
+	"char_nomes": ["Paulo", "Abdul", "Diogo", "Carlos"],
+	"char_sobrenomes": ["Foca", "Zica", "Nunes", "Marques"],
+	"gen_params": {
+		"forca": [6, 0.5],
+		"destreza": [5, 1.5],
+		"movimentacao": [10, 0.5],
+		"envergadura": [1.65, 0.08]
+	}
+}
