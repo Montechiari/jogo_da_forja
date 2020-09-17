@@ -1,9 +1,9 @@
 {
-	"estilo": "Akido",
+	"estilo": "Aikido",
 	"char_nomes": ["Zezinho", "Luizinho", "Huguinho", "Manel"],
 	"char_sobrenomes": ["Emar", "Pereira", "Linhares", "Rodolfo"],
 	"gen_params": {
-		"forca": [10, 1.3],
+		"forca": [8.75, 1.3],
 		"destreza": [5, 1],
 		"movimentacao": [5, 0.5],
 		"envergadura": [1.6, 0.12]

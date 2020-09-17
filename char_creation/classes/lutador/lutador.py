@@ -82,3 +82,8 @@ bonus ofensivo: {self.bonus_ofensivo}
 bonus defensivo: {self.bonus_defensivo}
 custo de ação: {self.custo_acao}
 '''
+
+    def __repr__(self):
+        return f'''[{self.saude}, {self.agilidade}, {self.alcance}, {self.dano_corte},
+{self.dano_estocada}, {self.bonus_ofensivo}, {self.bonus_defensivo},
+{self.custo_acao}]'''

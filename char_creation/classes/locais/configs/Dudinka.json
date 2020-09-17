@@ -3,9 +3,9 @@
 	"char_nomes": ["Eduardo", "Edvaldo", "Adonis", "Juca"],
 	"char_sobrenomes": ["Orlando", "Figueiredo", "Zorsky", "Kifuri"],
 	"gen_params": {
-		"forca": [6, 0.3],
-		"destreza": [10, 1],
+		"forca": [7.33, 0.3],
+		"destreza": [9, 1],
 		"movimentacao": [5, 1],
-		"envergadura": [1.6, 0.2]
+		"envergadura": [1.5, 0.2]
 	}
 }

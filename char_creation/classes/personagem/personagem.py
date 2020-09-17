@@ -29,6 +29,7 @@ destreza: {self.destreza}
 movimentação: {self.movimentacao}
 envergadura: {self.envergadura}'''
 
+
 if __name__ == "__main__":
     personagem = Personagem()
     print(str(personagem))

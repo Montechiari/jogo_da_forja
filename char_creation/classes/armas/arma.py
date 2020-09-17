@@ -1,5 +1,6 @@
 from numpy.random import randint, normal, choice
 
+
 class Arma:
     def __init__(self, peso=None, pnt_equilibrio=None,
                  pnt_percussao=None, curvatura=None, ponta=None,
