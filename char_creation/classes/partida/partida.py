@@ -5,6 +5,7 @@ from math import log2, floor
 from numpy.random import randint
 
 
+IMPRIMIR = True
 ESTILOS_DE_LUTA = ["Aikido", "Torniquete", "Jô-jitsu"]
 NOMES_ACOES = ["movimento ofensivo", "movimento defensivo",
                "ataque corte", "ataque estocada",
@@ -20,7 +21,8 @@ class Placar:
 
 
 class Partida:
-    def __init__(self, lutador_A, lutador_B):
+    def __init__(self, lutador_A, lutador_B, imprimir=False):
+        IMPRIMIR = imprimir
         self.lutadores = {lutador_A.nome: lutador_A,
                           lutador_B.nome: lutador_B}
         self.bonus_estilo = self.vantagem_de_estilo(lutador_A, lutador_B)
@@ -128,28 +130,28 @@ class Partida:
             self.fila_lutadores[1].ultima_acao = acao2
             aplicar = self.consequencia(self.efeitos_rodada(acao1, acao2))
             if(aplicar() == "fim"):
-                self.print_placar(i)
+                self.print_placar(i, permite=IMPRIMIR)
                 return
-            self.print_placar(i)
+            self.print_placar(i, permite=IMPRIMIR)
             self.registrar()
         return
 
-    def print_placar(self, acao_n):
-        pass
-        # if (self.vantagem['quem'] is None):
-        #     vantage = "ninguem"
-        # else:
-        #     vantage = self.vantagem['quem'].nome
-        # print(f"\nTurno {self.turno + 1}, Ação {acao_n + 1}. {vantage} tem vantagem {self.vantagem['tipo']}")
+    def print_placar(self, acao_n, permite=False):
+        if permite:
+            if (self.vantagem['quem'] is None):
+                vantage = "ninguem"
+            else:
+                vantage = self.vantagem['quem'].nome
+            print(f"\nTurno {self.turno + 1}, Ação {acao_n + 1}. {vantage} tem vantagem {self.vantagem['tipo']}")
 
-        # for item in self.fila_lutadores:
-        #     if item.ultima_acao is not None:
-        #         print(f'''{item.lutador.nome}:\nultima acao: {NOMES_ACOES[item.ultima_acao - 1]}\nsaude {item.saude} | iniciativa {item.iniciativa}\n''')
-        #     else:
-        #         print(f'''{item.lutador.nome}:\nultima acao: nenhuma\nsaude {item.saude} | iniciativa {item.iniciativa}\n''')
+            for item in self.fila_lutadores:
+                if item.ultima_acao is not None:
+                    print(f'''{item.lutador.nome}:\nultima acao: {NOMES_ACOES[item.ultima_acao - 1]}\nsaude {item.saude} | iniciativa {item.iniciativa}\n''')
+                else:
+                    print(f'''{item.lutador.nome}:\nultima acao: nenhuma\nsaude {item.saude} | iniciativa {item.iniciativa}\n''')
 
     def start(self):
-        self.print_placar(0)
+        self.print_placar(0, permite=IMPRIMIR)
         self.registrar()
         while (not self.fim_de_partida and (self.turno < 20)):
             self.novo_turno()
