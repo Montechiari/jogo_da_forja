@@ -16,7 +16,7 @@ matriz_vitorias = [[0, 0, 0],
 
 for i in tqdm(range(vezes)):
     lutadores = [Lutador(Personagem(), Arma()), Lutador(Personagem(), Arma())]
-    partida = Partida(lutadores[0], lutadores[1])
+    partida = Partida(lutadores[0], lutadores[1], verbose=False)
     partida.start()
     ganhou = partida.quem_ganhou()
     if (ganhou is not None):

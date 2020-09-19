@@ -5,11 +5,11 @@ from math import log2, floor
 from numpy.random import randint
 
 
-IMPRIMIR = True
+TAXA_VANTAGEM_DE_ESTILO = 0.15
 ESTILOS_DE_LUTA = ["Aikido", "Torniquete", "Jô-jitsu"]
 NOMES_ACOES = ["movimento ofensivo", "movimento defensivo",
                "ataque corte", "ataque estocada",
-               "defesa corte", "defesa estocada", "nenhuma acao"]
+               "defesa corte", "defesa estocada", "nenhuma ação"]
 
 
 class Placar:
@@ -21,13 +21,17 @@ class Placar:
 
 
 class Partida:
-    def __init__(self, lutador_A, lutador_B, imprimir=False):
-        IMPRIMIR = imprimir
+    def __init__(self, lutador_A, lutador_B, verbose=False):
+        self.verbose = verbose
         self.lutadores = {lutador_A.nome: lutador_A,
                           lutador_B.nome: lutador_B}
+        # define quem tem vantagem pelo estilo de luta
         self.bonus_estilo = self.vantagem_de_estilo(lutador_A, lutador_B)
+        # variavel para vantagem de movimentacao
         self.vantagem = {"quem": None, "tipo": None}
+        # número do turno
         self.turno = 0
+        # lutadores em ordem
         self.fila_lutadores = [Placar(lutador) for lutador in [lutador_A,
                                                                lutador_B]]
         self.fim_de_partida = False
@@ -42,7 +46,8 @@ class Partida:
             self.fila_lutadores.sort(key=lambda ltdr: ltdr.lutador.personagem.movimentacao,
                                      reverse=True)
         # retorna quantidade de acoes extras
-        return int(floor(abs(log2(self.fila_lutadores[0].iniciativa / self.fila_lutadores[1].iniciativa))))
+        return int(floor(abs(log2(self.fila_lutadores[0].iniciativa /
+                                  self.fila_lutadores[1].iniciativa))))
 
     def efeitos_rodada(self, acao_A, acao_B):
         DE_ACOES_PARA_ALTERACOES = [["09", "09", "02", "03", "04", "04", "09"],
@@ -78,47 +83,48 @@ class Partida:
         def aplicar():
 
             for i in range(2):
+                # checa se alguem tem vantagem de movimentacao
                 if (alteracoes[i][0] is not None):
                     self.vantagem['quem'] = self.fila_lutadores[i].lutador
                     self.vantagem['tipo'] = alteracoes[i][0]
-
-                modificador = alteracoes[i][1]
+                # checa se tem bonus de estilo de luta
+                mod_dano = alteracoes[i][1]
+                custo_acao = self.fila_lutadores[i].lutador.custo_acao
                 if (self.fila_lutadores[i].lutador is self.bonus_estilo):
-                    modificador += modificador * 0.15
-                if (self.vantagem['quem'] is self.fila_lutadores[i].lutador and self.vantagem['tipo'] == "ofensiva"):
-                    modificador = alteracoes[i][1] * self.fila_lutadores[i].lutador.bonus_ofensivo
-                elif (self.vantagem['quem'] is self.fila_lutadores[i - 1].lutador and self.vantagem['tipo'] == "defensiva"):
-                    modificador = alteracoes[i][1] * self.fila_lutadores[i - 1].lutador.bonus_defensivo
-
-                corte = round(self.fila_lutadores[i].lutador.dano_corte *
-                              modificador, 2)
-                estocada = round(self.fila_lutadores[i].lutador.dano_estocada *
-                                 modificador, 2)
-
+                    mod_dano += mod_dano * TAXA_VANTAGEM_DE_ESTILO
+                    custo_acao -= custo_acao * TAXA_VANTAGEM_DE_ESTILO
+                # calcula bonus ofensivo
+                i_tem_vantagem = (self.vantagem['quem'] is
+                                  self.fila_lutadores[i].lutador)
+                i_desvantagem = (self.vantagem['quem'] is
+                                 self.fila_lutadores[i - 1].lutador)
+                vant_ofs = self.vantagem['tipo'] == "ofensiva"
+                vant_def = self.vantagem['tipo'] == "defensiva"
+                if (i_tem_vantagem and vant_ofs):
+                    mod_dano *= self.fila_lutadores[i].lutador.bonus_ofensivo
+                elif (i_desvantagem and vant_def):
+                    mod_dano *= self.fila_lutadores[i - 1].lutador.bonus_defensivo
+                # aplica dano
+                corte = self.fila_lutadores[i].lutador.dano_corte * mod_dano
+                estocada = self.fila_lutadores[i].lutador.dano_estocada * mod_dano
                 if (alteracoes[i][2] == "corte"):
                     self.fila_lutadores[i - 1].saude -= corte
                 elif (alteracoes[i][2] == "estocada"):
                     self.fila_lutadores[i - 1].saude -= estocada
-
+                # deduz custo da acao
+                self.fila_lutadores[i].iniciativa += custo_acao * alteracoes[i][3]
+                if self.fila_lutadores[i].iniciativa < custo_acao:
+                    self.fila_lutadores[i].iniciativa = custo_acao
+                # limita saude minima a zero
                 if self.fila_lutadores[i - 1].saude < 0:
-                    self.fila_lutadores[i - 1].saude = 0
-
-                custo_ini = self.fila_lutadores[i].lutador.custo_acao
-                if (self.fila_lutadores[i].lutador is self.bonus_estilo):
-                    custo_ini -= custo_ini * 0.15
-                self.fila_lutadores[i].iniciativa += custo_ini * alteracoes[i][3]
-                if self.fila_lutadores[i].iniciativa < custo_ini:
-                    self.fila_lutadores[i].iniciativa = custo_ini
-
-                if self.fila_lutadores[i - 1].saude <= 0:
                     self.fila_lutadores[i - 1].saude = 0
                     self.fim_de_partida = True
                     return "fim"
             return "continua"
+
         return aplicar
 
     def novo_turno(self):
-        self.turno += 1
         acao_extra = self.ordena_por_iniciativa()
         for i in range(acao_extra + 1):
             acao1 = self.pede_acao()
@@ -130,20 +136,20 @@ class Partida:
             self.fila_lutadores[1].ultima_acao = acao2
             aplicar = self.consequencia(self.efeitos_rodada(acao1, acao2))
             if(aplicar() == "fim"):
-                self.print_placar(i, permite=IMPRIMIR)
+                self.print_placar(i)
                 return
-            self.print_placar(i, permite=IMPRIMIR)
+            self.print_placar(i)
             self.registrar()
+        self.turno += 1
         return
 
-    def print_placar(self, acao_n, permite=False):
-        if permite:
+    def print_placar(self, acao_n):
+        if (self.verbose is True):
             if (self.vantagem['quem'] is None):
                 vantage = "ninguem"
             else:
                 vantage = self.vantagem['quem'].nome
             print(f"\nTurno {self.turno + 1}, Ação {acao_n + 1}. {vantage} tem vantagem {self.vantagem['tipo']}")
-
             for item in self.fila_lutadores:
                 if item.ultima_acao is not None:
                     print(f'''{item.lutador.nome}:\nultima acao: {NOMES_ACOES[item.ultima_acao - 1]}\nsaude {item.saude} | iniciativa {item.iniciativa}\n''')
@@ -151,16 +157,17 @@ class Partida:
                     print(f'''{item.lutador.nome}:\nultima acao: nenhuma\nsaude {item.saude} | iniciativa {item.iniciativa}\n''')
 
     def start(self):
-        self.print_placar(0, permite=IMPRIMIR)
+        self.print_placar(0)
         self.registrar()
         while (not self.fim_de_partida and (self.turno < 20)):
             self.novo_turno()
+        self.registrar()
 
     def pede_acao(self):
         return randint(1, 7)
 
     def vantagem_de_estilo(self, lutadorA, lutadorB):
-        # -- modificador de estilos!
+        # -- mod_dano de estilos!
         tem_vantagem = None
         estilo_A = lutadorA.estilo
         estilo_B = lutadorB.estilo
@@ -180,9 +187,7 @@ class Partida:
         return ganhou
 
     def registrar(self):
-        vantagem = []
-        placares = []
-        ultimas_acoes = []
+        vantagem, placares, ultimas_acoes = [], [], []
         for i, placar in enumerate(self.fila_lutadores):
             if self.vantagem['quem'] is placar.lutador:
                 vantagem.append(i)
@@ -194,5 +199,15 @@ class Partida:
                 vantagem.append(1)
             placares.extend(eval(repr(placar.lutador)))
             ultimas_acoes.append(placar.ultima_acao)
-        registro =  [self.turno] + vantagem + placares + ultimas_acoes
+        registro = [self.turno] + vantagem + placares + ultimas_acoes
         self.historico.append(registro)
+
+    def dados_treino_aposta(self):
+        quem_ganha = []
+        placares = []
+        for i, placar in enumerate(self.fila_lutadores):
+            placares.extend(eval(repr(placar.lutador)))
+            placares.append(ESTILOS_DE_LUTA.index(placar.lutador.estilo))
+            if self.quem_ganhou() is placar.lutador:
+                quem_ganha.append(i)
+        return placares + quem_ganha
